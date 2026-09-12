@@ -1,0 +1,281 @@
+<div id="suda-showcase-container" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0b0f19; color: #f8fafc; padding: 48px 24px; border-radius: 20px; max-width: 1200px; margin: 0 auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); border: 1px solid #1e293b; position: relative;">
+  
+  <!-- Language Toggle Button -->
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
+    <button onclick="toggleSudaLanguage()" id="suda-lang-btn" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #60a5fa; border: 1px solid #334155; padding: 10px 20px; border-radius: 9999px; font-weight: 700; cursor: pointer; font-size: 14px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;">
+      🌐 <span id="suda-lang-btn-span">العربية</span>
+    </button>
+  </div>
+
+  <!-- Header Section -->
+  <div style="text-align: center; margin-bottom: 56px;">
+    <span style="background: rgba(59, 130, 246, 0.12); color: #60a5fa; padding: 8px 20px; border-radius: 9999px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid rgba(96, 165, 250, 0.3);" id="suda-badge">
+      Enterprise Business Management
+    </span>
+    <h1 style="font-size: 42px; font-weight: 800; color: #ffffff; margin-top: 20px; margin-bottom: 16px; letter-spacing: -0.025em; line-height: 1.2;" id="suda-title">
+      Suda ERP & Smart POS Solution
+    </h1>
+    <p style="font-size: 18px; color: #94a3b8; max-width: 760px; margin: 0 auto; line-height: 1.7;" id="suda-subtitle">
+      A complete, end-to-end management ecosystem engineered to prevent inventory loss, automate checkout operations, and power data-driven financial decisions across all store branches.
+    </p>
+  </div>
+
+  <!-- Key Performance Metrics Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 56px;">
+    <div style="background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); padding: 24px; border-radius: 16px; border: 1px solid #1e293b; text-align: center;">
+      <div style="font-size: 36px; font-weight: 800; color: #34d399; margin-bottom: 4px;">99.9%</div>
+      <div style="font-size: 14px; color: #94a3b8; font-weight: 500;" id="m-1">Inventory Accuracy</div>
+    </div>
+    <div style="background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); padding: 24px; border-radius: 16px; border: 1px solid #1e293b; text-align: center;">
+      <div style="font-size: 36px; font-weight: 800; color: #60a5fa; margin-bottom: 4px;">&lt; 2s</div>
+      <div style="font-size: 14px; color: #94a3b8; font-weight: 500;" id="m-2">Bill Print & Sync Speed</div>
+    </div>
+    <div style="background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); padding: 24px; border-radius: 16px; border: 1px solid #1e293b; text-align: center;">
+      <div style="font-size: 36px; font-weight: 800; color: #f472b6; margin-bottom: 4px;">0%</div>
+      <div style="font-size: 14px; color: #94a3b8; font-weight: 500;" id="m-3">Unrecorded Leakage</div>
+    </div>
+    <div style="background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); padding: 24px; border-radius: 16px; border: 1px solid #1e293b; text-align: center;">
+      <div style="font-size: 36px; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">100%</div>
+      <div style="font-size: 14px; color: #94a3b8; font-weight: 500;" id="m-4">Multi-Branch Control</div>
+    </div>
+  </div>
+
+  <!-- Modules Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 56px;">
+    
+    <!-- Module 1 -->
+    <div style="background: rgba(30, 41, 59, 0.6); padding: 32px; border-radius: 16px; border: 1px solid #334155; transition: transform 0.2s ease;">
+      <div style="width: 48px; height: 48px; background: rgba(59, 130, 246, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: #60a5fa; font-size: 22px;">📦</div>
+      <h3 style="font-size: 20px; font-weight: 700; color: #f8fafc; margin-bottom: 12px;" id="mod1-title">1. Smart Inventory Control</h3>
+      <p style="font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 20px;" id="mod1-desc">Automate your stock movements, supplier orders, and multi-warehouse operations seamlessly.</p>
+      <ul style="padding-left: 20px; padding-right: 20px; margin: 0; color: #cbd5e1; font-size: 14px; line-height: 2;" id="mod1-list">
+        <li>Automated low-stock threshold alerts</li>
+        <li>Batch management & barcode printing</li>
+        <li>Supplier profile & purchase order tracking</li>
+        <li>Stock transfer between warehouses</li>
+      </ul>
+    </div>
+
+    <!-- Module 2 -->
+    <div style="background: rgba(30, 41, 59, 0.6); padding: 32px; border-radius: 16px; border: 1px solid #334155; transition: transform 0.2s ease;">
+      <div style="width: 48px; height: 48px; background: rgba(16, 185, 129, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: #34d399; font-size: 22px;">⚡</div>
+      <h3 style="font-size: 20px; font-weight: 700; color: #f8fafc; margin-bottom: 12px;" id="mod2-title">2. High-Speed POS & Billing</h3>
+      <p style="font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 20px;" id="mod2-desc">Built for fast cashier checkouts with direct hardware integration for printers and scanners.</p>
+      <ul style="padding-left: 20px; padding-right: 20px; margin: 0; color: #cbd5e1; font-size: 14px; line-height: 2;" id="mod2-list">
+        <li>Thermal receipt printing (USB/Bluetooth)</li>
+        <li>Barcode & QR scanner integration</li>
+        <li>Split-payments (Cash, Card, Digital)</li>
+        <li>Instant return, exchange & refund handling</li>
+      </ul>
+    </div>
+
+    <!-- Module 3 -->
+    <div style="background: rgba(30, 41, 59, 0.6); padding: 32px; border-radius: 16px; border: 1px solid #334155; transition: transform 0.2s ease;">
+      <div style="width: 48px; height: 48px; background: rgba(244, 114, 182, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: #f472b6; font-size: 22px;">📊</div>
+      <h3 style="font-size: 20px; font-weight: 700; color: #f8fafc; margin-bottom: 12px;" id="mod3-title">3. Analytics & Business Intelligence</h3>
+      <p style="font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 20px;" id="mod3-desc">Transform sales data into visual, real-time strategy tools to maximize net profit margins.</p>
+      <ul style="padding-left: 20px; padding-right: 20px; margin: 0; color: #cbd5e1; font-size: 14px; line-height: 2;" id="mod3-list">
+        <li>Live sales, revenue & expense tracking</li>
+        <li>Top-performing vs. slow-moving stock insights</li>
+        <li>Automated P&L statements & tax reports</li>
+        <li>Cashier shift & staff performance logs</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Technical Infrastructure Banner -->
+  <div style="background: rgba(15, 23, 42, 0.8); padding: 28px; border-radius: 16px; border: 1px solid #1e293b; margin-bottom: 56px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
+    <div>
+      <h4 style="font-size: 18px; font-weight: 700; color: #f8fafc; margin: 0 0 6px 0;" id="tech-title">Robust Enterprise Stack</h4>
+      <p style="font-size: 14px; color: #94a3b8; margin: 0;" id="tech-subtitle">Next.js UI, Node.js (Express) Microservices, Relational SQL DB, WebUSB Hardware Sync.</p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <span style="background: #1e293b; color: #38bdf8; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid #334155;">Next.js</span>
+      <span style="background: #1e293b; color: #4ade80; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid #334155;">Node.js / Express</span>
+      <span style="background: #1e293b; color: #facc15; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid #334155;">PostgreSQL / MySQL</span>
+      <span style="background: #1e293b; color: #f472b6; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid #334155;">Web Hardware APIs</span>
+    </div>
+  </div>
+
+  <!-- Call to Action Section -->
+  <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 48px; border-radius: 16px; text-align: center; position: relative; overflow: hidden;">
+    <h2 style="font-size: 30px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0;" id="cta-title">Need a Custom System Built for Your Business?</h2>
+    <p style="font-size: 16px; color: #bfdbfe; max-width: 640px; margin: 0 auto 28px auto; line-height: 1.6;" id="cta-desc">Let's build a tailored system configured specifically for your store structure, billing flow, and analytics requirements.</p>
+    <button type="button" id="as-cta-btn" style="cursor: pointer; display: inline-block; background: #ffffff; color: #1e40af; font-weight: 800; font-size: 16px; padding: 16px 36px; border-radius: 10px; text-decoration: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); transition: transform 0.2s ease;" id="cta-btn">Book System Consultation →</button>
+  </div>
+
+</div>
+
+<!-- Language Toggle Logic (URL Aware) -->
+<script>
+  const whatsappNumber = '+249113710781';
+
+  const ctaBtn = document.getElementById('as-cta-btn');
+  if (ctaBtn) {
+    ctaBtn.addEventListener('click', (e) => {
+      console.log('clicked');
+      e.preventDefault();
+      if (whatsappNumber) {
+        const cleanNumber = String(whatsappNumber).replace(/[^0-9]/g, '');
+        window.open(`https://wa.me/${cleanNumber}`, '_blank');
+      } else {
+        console.error("WhatsApp number not found in /utils/media.js");
+      }
+    });
+  }
+
+  let currentSudaLang = 'en';
+
+  const sudaTranslations = {
+    en: {
+      badge: "Enterprise Business Management",
+      title: "Suda ERP & Smart POS Solution",
+      subtitle: "A complete, end-to-end management ecosystem engineered to prevent inventory loss, automate checkout operations, and power data-driven financial decisions across all store branches.",
+      m1: "Inventory Accuracy",
+      m2: "Bill Print & Sync Speed",
+      m3: "Unrecorded Leakage",
+      m4: "Multi-Branch Control",
+      mod1Title: "1. Smart Inventory Control",
+      mod1Desc: "Automate your stock movements, supplier orders, and multi-warehouse operations seamlessly.",
+      mod1List: [
+        "Automated low-stock threshold alerts",
+        "Batch management & barcode printing",
+        "Supplier profile & purchase order tracking",
+        "Stock transfer between warehouses"
+      ],
+      mod2Title: "2. High-Speed POS & Billing",
+      mod2Desc: "Built for fast cashier checkouts with direct hardware integration for printers and scanners.",
+      mod2List: [
+        "Thermal receipt printing (USB/Bluetooth)",
+        "Barcode & QR scanner integration",
+        "Split-payments (Cash, Card, Digital)",
+        "Instant return, exchange & refund handling"
+      ],
+      mod3Title: "3. Analytics & Business Intelligence",
+      mod3Desc: "Transform sales data into visual, real-time strategy tools to maximize net profit margins.",
+      mod3List: [
+        "Live sales, revenue & expense tracking",
+        "Top-performing vs. slow-moving stock insights",
+        "Automated P&L statements & tax reports",
+        "Cashier shift & staff performance logs"
+      ],
+      techTitle: "Robust Enterprise Stack",
+      techSub: "Next.js UI, Node.js (Express) Microservices, Relational SQL DB, WebUSB Hardware Sync.",
+      ctaTitle: "Need a Custom System Built for Your Business?",
+      ctaDesc: "Let's build a tailored system configured specifically for your store structure, billing flow, and analytics requirements.",
+      ctaBtn: "Book System Consultation →",
+      btnText: "العربية",
+      dir: "ltr"
+    },
+    ar: {
+      badge: "إدارة المؤسسات والشركات",
+      title: "نظام Suda ERP ادارة المبيعات والمخزن",
+      subtitle: "منظومة متكاملة لإدارة المخازن والمبيعات، مصممة لتطوير عملك، تسريع العمليات، واتخاذ قرارات مالية قائمة على بيانات دقيقة.",
+      m1: "دقة إدارة المخزون",
+      m2: "سرعة الطباعة والمزامنة",
+      m3: "أخطاء",
+      m4: "تحكم كامل بالفروع",
+      mod1Title: "١. إدارة المخزون الذكية",
+      mod1Desc: "أتمتة حركة البضائع، طلبات الموردين، والمستودعات المتعددة بكل سهولة ودقة.",
+      mod1List: [
+        "تنبيهات آلية عند وصول المخزون للحد الأدنى",
+        "إدارة الدفعات وطباعة البار كود",
+        "تتبع ملفات الموردين وأوامر الشراء",
+        "نقل المخزون السلس بين الفروع والمخازن"
+      ],
+      mod2Title: "٢. نقطة البيع والوفاء بالسداد",
+      mod2Desc: "مصممة لسرعة فائقة في الكاشير مع ربط مباشر مع أجهزة الفواتير والماسح الضوئي.",
+      mod2List: [
+        "طباعة إيصالات حرارية (USB/Bluetooth)",
+        "دعم كامل لماسح الباركود و QR",
+        "خيارات دفع متعددة (نقدي، بطاقة، محفظة)",
+        "إدارة فورية للإرجاع والاستبدال"
+      ],
+      mod3Title: "٣. لوحة التحليلات والذكاء التجاري",
+      mod3Desc: "تحويل بيانات المبيعات إلى أدوات بصرية واستراتيجية لزيادة هوامش الربح الصافي.",
+      mod3List: [
+        "متابعة حية للمبيعات، الإيرادات والمصروفات",
+        "تحليل المنتجات الأكثر والأقل مبيعاً",
+        "تقارير الأرباح والخسائر والإقرارات الضريبية",
+        "سجلات ورديات الكاشير وأداء الموظفين"
+      ],
+      techTitle: "بنية تقنية قوية للشركات",
+      techSub: "واجهة Next.js، خدمات Node.js / Express، قواعد بيانات SQL، ومزامنة أجهزة WebUSB.",
+      ctaTitle: "هل تحتاج لنظام مخصص لشركتك أو متجرك؟",
+      ctaDesc: "دعنا نبني نظاماً متكاملاً مخصصاً بالكامل ليدير حركة مخزونك، مبيعاتك، وتقاريرك المالية.",
+      ctaBtn: "احجز استشارة للنظام الآن ←",
+      btnText: "English",
+      dir: "rtl"
+    }
+  };
+
+  // Set initial language from URL parameter e.g., ?lang=ar
+  function initLanguageFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get('lang');
+
+    if (langParam === 'ar' || langParam === 'en') {
+      applyLanguage(langParam);
+    } else {
+      applyLanguage('en');
+    }
+  }
+
+  function applyLanguage(lang) {
+    currentSudaLang = lang;
+    const t = sudaTranslations[lang];
+    const container = document.getElementById('suda-showcase-container');
+
+    container.style.direction = t.dir;
+
+    document.getElementById('suda-badge').innerText = t.badge;
+    document.getElementById('suda-title').innerText = t.title;
+    document.getElementById('suda-subtitle').innerText = t.subtitle;
+
+    document.getElementById('m-1').innerText = t.m1;
+    document.getElementById('m-2').innerText = t.m2;
+    document.getElementById('m-3').innerText = t.m3;
+    document.getElementById('m-4').innerText = t.m4;
+
+    document.getElementById('mod1-title').innerText = t.mod1Title;
+    document.getElementById('mod1-desc').innerText = t.mod1Desc;
+    renderList('mod1-list', t.mod1List);
+
+    document.getElementById('mod2-title').innerText = t.mod2Title;
+    document.getElementById('mod2-desc').innerText = t.mod2Desc;
+    renderList('mod2-list', t.mod2List);
+
+    document.getElementById('mod3-title').innerText = t.mod3Title;
+    document.getElementById('mod3-desc').innerText = t.mod3Desc;
+    renderList('mod3-list', t.mod3List);
+
+    document.getElementById('tech-title').innerText = t.techTitle;
+    document.getElementById('tech-subtitle').innerText = t.techSub;
+
+    document.getElementById('cta-title').innerText = t.ctaTitle;
+    document.getElementById('cta-desc').innerText = t.ctaDesc;
+    document.getElementById('cta-btn').innerText = t.ctaBtn;
+
+    document.getElementById('suda-lang-btn-span').querySelector('span').innerText = t.btnText;
+  }
+
+  function toggleSudaLanguage() {
+    const nextLang = currentSudaLang === 'en' ? 'ar' : 'en';
+    
+    // Update the URL search params without reloading the page
+    const url = new URL(window.location);
+    url.searchParams.set('lang', nextLang);
+    window.history.pushState({}, '', url);
+
+    applyLanguage(nextLang);
+  }
+
+  function renderList(elementId, items) {
+    const el = document.getElementById(elementId);
+    el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+  }
+
+  // Run on page load
+  window.addEventListener('DOMContentLoaded', initLanguageFromUrl);
+</script>

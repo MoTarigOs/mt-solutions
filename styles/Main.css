@@ -1,0 +1,36 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+:root{
+    --PrimaryColor: #0057B8;
+    --PrimaryColorHover: #528fe5;
+    --SecondaryColor: #0099FF;
+    --SecondaryColorHover: #4bb7ff;
+    --ThirdColor: rgb(255, 221, 0);
+    --BackgroundColor: #0057B8;
+    --BackgroundGradient: radial-gradient(circle, #f9f9ff, #f1f1ff);
+    --GradientColor: radial-gradient(circle, #f9f9ff, #f1f1ff);
+    /* --GradientColor: linear-gradient(to top, #fffdfa, #fff2cf); */
+}
+
+main{
+    overflow-x: hidden;
+}
+
+.BigContainerDiv{
+    background: var(--BackgroundGradient);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.Main{
+    height: fit-content;
+    width: 100vw;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
