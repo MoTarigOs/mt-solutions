@@ -186,7 +186,7 @@ export const homeData = {
       successMsg: "تم إرسال الرسالة بنجاح! سيتواصل معك محمد طارق قريباً.",
       directEmail: "contact@mohamedtarig.dev",
       directLocation: "متاح عالمياً / عن بُعد",
-      directWhatsapp: "+1 (555) 019-2834",
+      directWhatsapp: "+249 113-710-781",
       viewServiceBtn: "استكشاف الخدمة",
       serviceUniquePill: "حلول احترافية",
       chatWelcome: "مرحباً! أنا المساعد الذكي لمحمد. كيف يمكنني مساعدتك اليوم؟",

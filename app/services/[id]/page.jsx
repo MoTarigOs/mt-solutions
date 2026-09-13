@@ -15,47 +15,80 @@ import '@styles/sections/ServiceDetail.scss';
 import { homeData } from '@utils/Data';
 import { sendContactEmail } from '@utils/Api.js';
 
-// Interactive Estimation Presets
+// Exchange rates against USD — adjust these whenever rates change
+const EXCHANGE_RATES = {
+  USD: 1,
+  SAR: 3.75,
+  EGP: 51.5,
+  SDG: 6500,
+};
+
+const CURRENCY_BY_COUNTRY = {
+  SA: 'SAR',
+  EG: 'EGP',
+  SD: 'SDG',
+};
+
+const CURRENCY_SYMBOLS = {
+  USD: '$',
+  SAR: 'SAR',
+  EGP: 'EGP',
+  SDG: 'SDG',
+};
+
+// Just set the USD price for each item — other currencies are calculated automatically
 const servicePresets = {
   'web-dev': {
-    basePrice: 400,
-    baseDelivery: '1-2 Weeks',
+    basePriceUSD: 149.99,
+    baseDelivery: '2-4 Weeks',
     features: [
-      { id: 'responsive', labelEn: 'Mobile Responsive Layout', labelAr: 'تصميم متجاوب مع جميع الشاشات', price: 0, checked: true, force: true },
-      { id: 'cms', labelEn: 'Content Management System (CMS)', labelAr: 'نظام إدارة المحتوى', price: 150 },
-      { id: 'seo', labelEn: 'Advanced SEO Optimization', labelAr: 'تحسين محركات البحث Advanced SEO', price: 100 },
-      { id: 'ecommerce', labelEn: 'E-Commerce & Payment Integration', labelAr: 'دفع إلكتروني ومتجر كامل', price: 250 },
-      { id: 'multilang', labelEn: 'Multi-language Support', labelAr: 'دعم متعدد اللغات', price: 120 },
+      { id: 'responsive', labelEn: 'Works Great on Every Device', labelAr: 'يعمل بشكل ممتاز على جميع الأجهزة', priceUSD: 0, checked: true, force: true },
+      { id: 'pages', labelEn: 'Up to 5 Pages', labelAr: 'حتى 5 صفحات', priceUSD: 0, checked: true, force: true },
+      { id: 'cms', labelEn: 'Edit Your Content Yourself', labelAr: 'إمكانية تعديل المحتوى بنفسك', priceUSD: 49.99 },
+      { id: 'ecommerce', labelEn: 'Online Store & Payments', labelAr: 'متجر إلكتروني ودفع أونلاين', priceUSD: 129.99 },
+      { id: 'multilang', labelEn: 'Second Language Version', labelAr: 'نسخة بلغة ثانية', priceUSD: 29.99 },
     ]
   },
   'apps-dev': {
-    basePrice: 800,
+    basePriceUSD: 299.99,
     baseDelivery: '3-5 Weeks',
     features: [
-      { id: 'cross', labelEn: 'iOS & Android Support (React Native)', labelAr: 'تطبيق للآيفون والأندرويد', price: 0, checked: true, force: true },
-      { id: 'push', labelEn: 'Push Notifications Integration', labelAr: 'إشعارات لحظية (Push Notifications)', price: 100 },
-      { id: 'backend', labelEn: 'Custom Backend API & Database', labelAr: 'خادم خاص وقواعد بيانات', price: 300 },
-      { id: 'store', labelEn: 'App Store & Google Play Publishing', labelAr: 'نشر التطبيق على المتاجر', price: 150 },
+      { id: 'cross', labelEn: 'One App for iPhone & Android', labelAr: 'تطبيق واحد للآيفون والأندرويد', priceUSD: 0, checked: true, force: true },
+      { id: 'screens', labelEn: 'Up to 4 Screens', labelAr: 'حتى 4 شاشات', priceUSD: 0, checked: true, force: true },
+      { id: 'push', labelEn: 'Push Notifications', labelAr: 'إشعارات فورية', priceUSD: 29.99 },
+      { id: 'backend', labelEn: 'Save & Manage Data Online', labelAr: 'حفظ وإدارة البيانات أونلاين', priceUSD: 199.99 },
+      { id: 'store', labelEn: 'Publish on App Store & Google Play', labelAr: 'نشر التطبيق على المتاجر', priceUSD: 44.99 },
     ]
   },
   'systems-dev': {
-    basePrice: 900,
+    basePriceUSD: 399.99,
     baseDelivery: '3-6 Weeks',
     features: [
-      { id: 'dashboard', labelEn: 'Interactive Admin Dashboard', labelAr: 'لوحة تحكم تفاعلية', price: 0, checked: true, force: true },
-      { id: 'auth', labelEn: 'Role-based Access & Security', labelAr: 'صلاحيات متعددة للمستخدمين والأمان', price: 150 },
-      { id: 'reports', labelEn: 'Analytics & Exporting (PDF/Excel)', labelAr: 'تقارير تحليلية وتصدير البيانات', price: 200 },
-      { id: 'hardware', labelEn: 'POS / Hardware Integration', labelAr: 'ربط أجهزة المسح والطباعة والكاشير', price: 250 },
+      { id: 'dashboard', labelEn: 'Easy-to-Use Control Panel', labelAr: 'لوحة تحكم سهلة الاستخدام', priceUSD: 0, checked: true, force: true },
+      { id: 'auth', labelEn: 'Staff Accounts & Permissions', labelAr: 'حسابات للموظفين وصلاحيات', priceUSD: 0, checked: true, force: true },
+      // { id: 'reports', labelEn: 'Reports You Can Export', labelAr: 'تقارير قابلة للتصدير', priceUSD: 100 },
+      // { id: 'hardware', labelEn: 'Connect Printers & Scanners', labelAr: 'ربط الطابعات وأجهزة المسح', priceUSD: 150 },
     ]
   },
   'logo-design': {
-    basePrice: 150,
-    baseDelivery: '3-5 Days',
+    basePriceUSD: 59.99,
+    baseDelivery: '4-7 Days',
     features: [
-      { id: 'concepts', labelEn: '3 Unique Initial Concepts', labelAr: '3 نماذج شعار أصلية مختلفة', price: 0, checked: true, force: true },
-      { id: 'vectors', labelEn: 'Full Vector Files (AI, SVG, PNG)', labelAr: 'كافة الملفات المصدرية عالية الدقة', price: 0, checked: true, force: true },
-      { id: 'revisions', labelEn: 'Unlimited Revisions', labelAr: 'تعديلات غير محدودة', price: 50 },
-      { id: 'fast', labelEn: 'Express 48-Hour Delivery', labelAr: 'تسليم سريع خلال 48 ساعة', price: 80 },
+      { id: 'concepts', labelEn: '3 Logo Ideas to Choose From', labelAr: '3 أفكار شعار للاختيار بينها', priceUSD: 0, checked: true, force: true },
+      { id: 'vectors', labelEn: 'All Files You Need (Print & Web)', labelAr: 'جميع الملفات التي تحتاجها', priceUSD: 0, checked: true, force: true },
+      { id: 'revisions', labelEn: 'Extra Rounds of Changes', labelAr: 'جولات تعديل إضافية', priceUSD: 19.99 },
+      { id: 'fast', labelEn: 'Rush Delivery (48 Hours)', labelAr: 'تسليم سريع خلال 48 ساعة', priceUSD: 29.99 },
+    ]
+  },
+  'branding': {
+    basePriceUSD: 119.99,
+    baseDelivery: '6-9 Days',
+    features: [
+      { id: 'logo', labelEn: 'Logo Design Included', labelAr: 'تصميم الشعار مشمول', priceUSD: 0, checked: true, force: true },
+      { id: 'stationery', labelEn: 'Business Card & Letterhead', labelAr: 'كرت شخصي وترويسة رسمية', priceUSD: 0, checked: true, force: true },
+      { id: 'guide', labelEn: 'Colors & Fonts Guide', labelAr: 'دليل الألوان والخطوط', priceUSD: 0, checked: true, force: true },
+      { id: 'social', labelEn: 'Social Media Design Kit', labelAr: 'تصاميم لمواقع التواصل', priceUSD: 34.99 },
+      { id: 'revisions', labelEn: 'Extra Rounds of Changes', labelAr: 'جولات تعديل إضافية', priceUSD: 19.99 },
     ]
   }
 };
@@ -75,6 +108,46 @@ function ServiceDetailContent({ params }) {
   // Initialize state from URL params or default values
   const [lang, setLang] = useState(urlLang === 'ar' ? 'ar' : 'en');
   const [theme, setTheme] = useState(urlMode === 'dark' ? 'dark' : 'light');
+
+  // Currency state, auto-detected from user location
+  const [currency, setCurrency] = useState('USD');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const detectCurrency = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        const detected = CURRENCY_BY_COUNTRY[data?.country_code];
+        if (isMounted && detected) {
+          setCurrency(detected);
+        }
+      } catch (err) {
+        // silently fall back to USD if location lookup fails
+      }
+    };
+
+    detectCurrency();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const convertPrice = (usdAmount) => {
+    const rate = EXCHANGE_RATES[currency] ?? 1;
+    const converted = usdAmount * rate;
+    if (currency === 'USD') return converted;
+    const rounded = Math.round(converted);
+    return rounded > 0 ? rounded - 0.01 : 0;
+  };
+
+  const formatPrice = (amount) => {
+    const fixed = amount.toFixed(2);
+    if (currency === 'USD') return `$${fixed}`;
+    return `${fixed} ${CURRENCY_SYMBOLS[currency]}`;
+  };
 
   // Dynamic Custom Scope State
   const preset = servicePresets[serviceId] || servicePresets['web-dev'];
@@ -162,13 +235,13 @@ function ServiceDetailContent({ params }) {
   // Cost Logic: Swapped to "Custom" if any custom scope exists
   const hasCustomItems = customScopes.length > 0;
   
-  const calculatedNumericPrice = preset.basePrice + preset.features.reduce((acc, feat) => {
-    return selectedFeatures[feat.id] ? acc + feat.price : acc;
+  const calculatedNumericPrice = convertPrice(preset.basePriceUSD) + preset.features.reduce((acc, feat) => {
+    return selectedFeatures[feat.id] ? acc + convertPrice(feat.priceUSD) : acc;
   }, 0);
 
   const displayPriceLabel = hasCustomItems 
     ? (lang === 'en' ? 'Custom' : 'مخصص')
-    : `$${calculatedNumericPrice}`;
+    : formatPrice(calculatedNumericPrice);
 
   // Build String of Selected + Custom Scopes
   const selectedFeatureNames = preset.features
@@ -182,7 +255,7 @@ function ServiceDetailContent({ params }) {
     const cleanPhone = (t.directWhatsapp || '').replace(/[^0-9]/g, '');
     const priceText = hasCustomItems 
       ? (lang === 'en' ? 'Custom Quote Needed' : 'يتطلب تسعير مخصص') 
-      : `~$${calculatedNumericPrice}`;
+      : `~${formatPrice(calculatedNumericPrice)}`;
 
     const messageText = lang === 'en'
       ? `Hello Mohamed! I want to order "${currentService.title}".\n\nEstimated Cost: ${priceText}\nSelected & Custom Scope: ${allScopesCombined}\n\nLet's discuss!`
@@ -202,7 +275,7 @@ function ServiceDetailContent({ params }) {
       const formData = new FormData(formElement);
 
       const userNotes = formData.get('message') || '';
-      const priceText = hasCustomItems ? 'Custom Quote' : `~$${calculatedNumericPrice}`;
+      const priceText = hasCustomItems ? 'Custom Quote' : `~${formatPrice(calculatedNumericPrice)}`;
 
       const formattedMessage = lang === 'en'
         ? `[SERVICE REQUEST: ${currentService.title}]\nEst. Price: ${priceText}\nScope Included: ${allScopesCombined}\n\nClient Notes: ${userNotes}`
@@ -242,10 +315,10 @@ function ServiceDetailContent({ params }) {
           {t.brand}
         </div>
         <div className="controls">
-          <button onClick={handleToggleLang} style={{ color: theme === 'dark' ? 'white' : undefined }}>
+          <button onClick={handleToggleLang} style={{ color: theme === 'dark' ? 'white' : '#000' }}>
             <Languages size={15} /> {lang === 'en' ? 'العربية' : 'English'}
           </button>
-          <button onClick={handleToggleTheme}>
+          <button onClick={handleToggleTheme} style={{ color: theme === 'dark' ? 'white' : '#000' }}>
             {theme === 'dark' ? <Sun size={16} color="#facc15" /> : <Moon size={16} color="#334155" />}
           </button>
         </div>
@@ -302,6 +375,7 @@ function ServiceDetailContent({ params }) {
                 {/* Standard Preset Items */}
                 {preset.features.map((feat) => {
                   const isSelected = !!selectedFeatures[feat.id];
+                  const featPrice = convertPrice(feat.priceUSD);
                   return (
                     <div
                       key={feat.id}
@@ -315,7 +389,7 @@ function ServiceDetailContent({ params }) {
                         <span className="tile-text">{lang === 'ar' ? feat.labelAr : feat.labelEn}</span>
                       </div>
                       <span className="tile-price">
-                        {feat.price === 0 ? (lang === 'en' ? 'Included' : 'مضمن') : `+$${feat.price}`}
+                        {featPrice === 0 ? (lang === 'en' ? 'Included' : 'مضمن') : `+${formatPrice(featPrice)}`}
                       </span>
                     </div>
                   );
@@ -374,7 +448,7 @@ function ServiceDetailContent({ params }) {
                 <div className="price-display">
                   <span className="label">{lang === 'en' ? 'Estimated Investment' : 'التكلفة التقديرية'}</span>
                   <div className={`cost ${hasCustomItems ? 'custom-price-text' : ''}`}>
-                    {displayPriceLabel} {!hasCustomItems && <span>USD</span>}
+                    {displayPriceLabel}
                   </div>
                 </div>
                 <button className="cta-whatsapp-btn" onClick={handleWhatsAppRedirect}>

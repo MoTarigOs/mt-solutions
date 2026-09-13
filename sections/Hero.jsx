@@ -18,7 +18,6 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
   // Read URL parameters
   const urlLang = searchParams.get('lang');
   const urlMode = searchParams.get('mode') || searchParams.get('theme');
@@ -39,6 +38,37 @@ function HomeContent() {
   const [chatHistory, setChatHistory] = useState([
     { sender: 'bot', text: homeData[lang]?.chatWelcome || homeData['en'].chatWelcome }
   ]);
+
+  function useWindowDimensions() {
+    const [dimensions, setDimensions] = useState({ width: undefined, height: undefined });
+  
+    useEffect(() => {
+      const handleResize = () => {
+        setDimensions({ width: window.innerWidth, height: window.innerHeight });
+      };
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
+  
+    return dimensions;
+  };
+  const { width, height } = useWindowDimensions();
+
+  function useIsIOS() {
+    const [isIOS, setIsIOS] = useState(false);
+  
+    useEffect(() => {
+      const ua = window.navigator.userAgent;
+      const iOSDevice = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      // iPadOS 13+ reports as Mac, so also catch touch-enabled "Mac"
+      const iPadOS13Up = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+      setIsIOS(iOSDevice || iPadOS13Up);
+    }, []);
+  
+    return isIOS;
+  };
+  const isIOS = useIsIOS();
 
   // Sync state when URL params change directly
   useEffect(() => {
@@ -223,6 +253,13 @@ function HomeContent() {
                       key={fOpt.val}
                       onClick={() => setActiveFilter(fOpt.val)}
                       className={activeFilter === fOpt.val ? 'active' : ''}
+                      style={(isIOS) ? 
+                          { 
+                            borderColor: activeFilter === fOpt.val ? 'transparent' : theme === 'dark' ? '#fff' : '#000a',
+                            color: activeFilter === fOpt.val ? 'white' : theme === 'dark' ? '#fff' : '#000a',
+                            opacity: 1,
+                          }
+                        : { color: activeFilter === fOpt.val ? 'white' : theme === 'dark' ? '#fff' : 'black', opacity: 1 }}
                     >
                       {fOpt.label}
                     </button>
@@ -273,7 +310,7 @@ function HomeContent() {
                     </div>
                     <div className="service-card-action">
                       <span className="service-pill">{t.serviceUniquePill}</span>
-                      <a href={service.url} className="service-detail-btn">
+                      <a href={service.url + '&mode=' + (theme === 'dark' ? 'dark' : 'light')} className="service-detail-btn">
                         <span>{t.viewServiceBtn}</span>
                         <ArrowRight size={14} style={{ transform: lang === 'ar' ? 'rotate(180deg)' : '' }} />
                       </a>
@@ -367,7 +404,7 @@ function HomeContent() {
         </section>
       </main>
 
-      <div className="ai-chatbot-widget" style={{ position: 'relative', zIndex: 2 }}>
+      <div className="ai-chatbot-widget">
         {isChatOpen && (
           <div className="chat-window">
             <div className="chat-header">
