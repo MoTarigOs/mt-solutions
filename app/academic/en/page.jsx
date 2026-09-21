@@ -3,39 +3,36 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import SUSTLOGO from '@assets/images/sust_logo.png';
+import Header from '@sections/Header';
 
 // ============================================================================
-// 1. EDITABLE RESEARCH DATA
+// 1. EDITABLE RESEARCH DATA OBJECT (English)
 // ============================================================================
 const RESEARCH_DATA = {
   meta: {
-    title: "Human-Aware Electrical Shock Prevention System",
-    subtitle: "Reducing The Risk Of Electrical Shock.",
+    title: "Human-Sensing Electric Shock Prevention System",
+    subtitle: "Cutting the risk of electric shock before it happens.",
     institution: "Sudan University of Science and Technology",
     institutionArabic: "جامعة السودان للعلوم والتكنولوجيا",
     college: "College of Engineering",
     department: "Department of Electronic Engineering",
-    degree: "B.Sc. (Honours) in Electronic Engineering",
+    degree: "Bachelor of Science (Honours) in Electronic Engineering",
     academicYear: "2025 – 2026",
-    status: "Bench Prototype Validated",
+    status: "Verified Laboratory Prototype",
 
     advisor: {
       title: "Supervised by",
-      name: "Dr. Mohamed Alnour",
+      name: "Dr. Mohammed Elnour",
       role: "",
       email: ""
     },
-
     members: [
-      {
-        name: "Mohamed Tarig",
-        id: "2018-11481409",
-        role: "Hardware & Circuit Design"
-      }
+      { name: "Mohammed Tariq", id: "2018-11481409", role: "Hardware & Circuit Design" },
+      // { name: "Member Name 2", id: "18-05-12346", role: "Testing & Data Analysis" },
     ],
 
     carrierFrequency: "500 kHz",
-    avgResponseTime: "5-21 ms",
+    avgResponseTime: "5–21 ms",
     isolationType: "Solid-State Relay (G3M-203P-4)",
     microcontroller: "ATmega328P (8-bit AVR)"
   },
@@ -43,35 +40,23 @@ const RESEARCH_DATA = {
   videos: [
     {
       id: "vid-1",
-      title: "Bench Experiment 1",
-      category: "Contacts situations",
+      title: "Experiment – Part 1",
+      category: "Contact Cases",
       duration: "5:07",
-      videoUrl:
-        "https://sust-motarig-research-files.s3.eu-central-003.backblazeb2.com/shock_prevention_sys_part1.mp4",
-      posterUrl:
-        "https://www.motarig.com/experiment_poster.png",
-      description:
-        "Tests touch detection with different contact situations.",
-      metrics: {
-        latency: "5-21 ms",
-        outcome: "Pass (Capacitive Trigger)"
-      }
+      videoUrl: "https://sust-motarig-research-files.s3.eu-central-003.backblazeb2.com/shock_prevention_sys_part1.mp4",
+      posterUrl: "https://www.motarig.com/experiment_poster.png",
+      description: "Touch tests under several different contact conditions.",
+      metrics: { latency: "5–21 ms", outcome: "Passed (solid response to touch)" }
     },
     {
       id: "vid-2",
-      title: "Bench Experiment 2",
-      category: "More Details",
+      title: "Experiment – Part 2",
+      category: "Additional Detail",
       duration: "4:24",
-      videoUrl:
-        "https://sust-motarig-research-files.s3.eu-central-003.backblazeb2.com/shock_prevention_sys_part2.mp4",
-      posterUrl:
-        "https://www.motarig.com/experiment_poster.png",
-      description:
-        "Explain in details how we acheived the final results.",
-      metrics: {
-        latency: "N/A",
-        outcome: "Pass"
-      }
+      videoUrl: "https://sust-motarig-research-files.s3.eu-central-003.backblazeb2.com/shock_prevention_sys_part2.mp4",
+      posterUrl: "https://www.motarig.com/experiment_poster.png",
+      description: "A closer look at how the final results were reached.",
+      metrics: { latency: "N/A", outcome: "Passed" }
     }
   ],
 
@@ -81,10 +66,9 @@ const RESEARCH_DATA = {
       title: "Final Circuit Design",
       figure: "Figure 3.6",
       category: "Schematics",
-      imageUrl: "/images/circuit_design.jpg",
-      caption:
-        "Circuit schematic showing the Final Design that we will turn into physical bench test."
-    }
+      imageUrl: "http://localhost:3000/images/circuit_design.jpg",
+      caption: "The final circuit schematic that was later turned into a working prototype."
+    },
   ],
 
   codeFiles: [
@@ -92,1333 +76,1339 @@ const RESEARCH_DATA = {
       id: "code-1",
       filename: "arduino_code.hex",
       language: "cpp",
-      description:
-        "Arduino IDE Code, for ATmega328P firmware implementing ADC sample smoothing, adaptive drift tracking, and latching SSR trip logic.",
-      code: `const byte SENSOR_PIN = A0;
-const byte RELAY_PIN = 13;
-const byte GENERATOR_PIN = 11;
-const byte STAGE_PIN = 9;
-const byte ALARM_PIN = 8;
-
-// ASYMMETRICAL FILTER CONFIGURATION
-float smoothedAmp = 0;
-
-const float SMOOTH_DOWN = 0.88;
-const float SMOOTH_UP = 0.15;
-
-// CALIBRATION VARIABLES
-unsigned long baselineClosed = 0;
-unsigned long thresholdOpenIt = 0;
-unsigned long thresholdAlarm = 0;
-unsigned long baselineOpen = 0;
-unsigned long thresholdCloseIt = 0;
-
-// Sensitivity percentages
-const float CUTOFF_SENSITIVITY = 0.055;
-const float ALARM_SENSITIVITY = 0.025;
-const float RECONNECT_SENSITIVITY = 0.025;
-
-// Dynamic Adaptive Drift
-const float DRIFT_SLOW_PCT = 0.003;
-const float DRIFT_FAST_PCT = 0.030;
-
-// Drift Variables
-const unsigned long CLOSED_DRIFT_SLOW_TIME = 500;
-const unsigned long CLOSED_DRIFT_FAST_TIME = 2000;
-
-const unsigned long OPEN_DRIFT_SLOW_TIME = 1000;
-const unsigned long OPEN_DRIFT_FAST_TIME = 30000;
-
-// Timers
-unsigned long slowDriftStartTime = 0;
-unsigned long fastDriftStartTime = 0;
-
-float currentDriftRatio = 1.0;
-
-bool circuitIsClosed = true;
-
-unsigned long lastSerialTime = 0;
-
-unsigned long clearStartTime = 0;
-
-const unsigned long RECONNECT_DELAY = 3000;
-
-int absMax = 0;
-int absMin = 1023;
-
-// --------------------------------------------------
-// CLOSED STATE THRESHOLDS
-// --------------------------------------------------
-
-void updateClosedThresholds(unsigned long newBase) {
-
-    baselineClosed =
-        (SMOOTH_DOWN * newBase) +
-        ((1.0 - SMOOTH_DOWN) * newBase);
-
-    thresholdAlarm =
-        baselineClosed -
-        (baselineClosed * ALARM_SENSITIVITY);
-
-    thresholdOpenIt =
-        baselineClosed -
-        (baselineClosed * CUTOFF_SENSITIVITY);
-}
-
-// --------------------------------------------------
-// OPEN STATE THRESHOLDS
-// --------------------------------------------------
-
-void updateOpenThresholds(unsigned long newBase) {
-
-    baselineOpen = newBase;
-
-    thresholdCloseIt =
-        baselineOpen -
-        (baselineOpen * RECONNECT_SENSITIVITY);
-}
-
-// --------------------------------------------------
-// SETUP
-// --------------------------------------------------
-
-void setup() {
-
-    pinMode(RELAY_PIN, OUTPUT);
-
-    digitalWrite(RELAY_PIN, LOW);
-
-    circuitIsClosed = true;
-
-    pinMode(ALARM_PIN, OUTPUT);
-
-    digitalWrite(ALARM_PIN, LOW);
-
-    pinMode(GENERATOR_PIN, OUTPUT);
-
-    pinMode(STAGE_PIN, INPUT_PULLUP);
-
-    // TIMER 2 SQUARE WAVE GENERATION
-
-    TCCR2A =
-        _BV(COM2A0) |
-        _BV(WGM21);
-
-    TCCR2B = _BV(CS20);
-
-    OCR2A = 7;
-
-    Serial.begin(115200);
-
-    // ADC prescaler
-
-    ADCSRA =
-        (ADCSRA & 0xF8) |
-        0x05;
-
-    delay(800);
-
-    // Additional calibration and control logic
-    // omitted here for display purposes.
-}
-
-// --------------------------------------------------
-// LOOP
-// --------------------------------------------------
-
-void loop() {
-
-    // Sensor acquisition
-
-    int rawAmp = analogRead(SENSOR_PIN);
-
-    // Asymmetrical filtering
-
-    if (rawAmp < smoothedAmp) {
-
-        smoothedAmp =
-            (SMOOTH_DOWN * rawAmp) +
-            ((1.0 - SMOOTH_DOWN) * smoothedAmp);
-
-    } else {
-
-        smoothedAmp =
-            (SMOOTH_UP * rawAmp) +
-            ((1.0 - SMOOTH_UP) * smoothedAmp);
-    }
-
-    // Main safety logic
-
-    if (circuitIsClosed) {
-
-        if (smoothedAmp < thresholdAlarm) {
-
-            digitalWrite(ALARM_PIN, HIGH);
-
-        } else {
-
-            digitalWrite(ALARM_PIN, LOW);
-        }
-
-        if (smoothedAmp < thresholdOpenIt) {
-
-            circuitIsClosed = false;
-
-            digitalWrite(RELAY_PIN, HIGH);
-
-            digitalWrite(ALARM_PIN, LOW);
-
-            clearStartTime = 0;
-        }
-
-    } else {
-
-        digitalWrite(ALARM_PIN, LOW);
-
-        if (smoothedAmp > thresholdCloseIt) {
-
-            if (clearStartTime == 0) {
-                clearStartTime = millis();
-            }
-
-            if (
-                millis() - clearStartTime >=
-                RECONNECT_DELAY
-            ) {
-
-                circuitIsClosed = true;
-
-                digitalWrite(RELAY_PIN, LOW);
-
-                clearStartTime = 0;
-            }
-
-        } else {
-
-            clearStartTime = 0;
-        }
-    }
-
-    // Telemetry
-
-    if (millis() - lastSerialTime >= 120) {
-
-        lastSerialTime = millis();
-
-        Serial.print("Smooth: ");
-        Serial.print(smoothedAmp);
-
-        Serial.print(" | State: ");
-
-        Serial.println(
-            circuitIsClosed
-                ? "CLOSED"
-                : "OPEN"
-        );
-    }
-}`
+      description: "Arduino firmware for the ATmega328P: ADC sample smoothing, adaptive drift tracking, and relay cut-off logic.",
+      code: `const byte SENSOR_PIN = A0;     // Analog read pin for high-pass filter signal
+      const byte RELAY_PIN = 13;      // Control Pin: LOW = Closed (Normal), HIGH = Open (Cutoff)
+      const byte GENERATOR_PIN = 11;  // Carrier wave output (Timer 2)
+      const byte STAGE_PIN = 9;       // Input pin to advance calibration stages (INPUT_PULLUP)
+      const byte ALARM_PIN = 8;       // Proximity early-warning alarm output pin
+      
+      // ─── ASYMMETRICAL FILTER CONFIGURATION ───
+      float smoothedAmp = 0;
+      const float SMOOTH_DOWN = 0.88; // Faster tracking when value drops (hand approaching)
+      const float SMOOTH_UP = 0.15;   // Slower tracking when value rises (hand retreating)
+      
+      // ─── CALIBRATION VARIABLES & SENSITIVITY TWEAKS ───
+      unsigned long baselineClosed = 0;
+      unsigned long thresholdOpenIt = 0;   
+      unsigned long thresholdAlarm = 0;    
+      unsigned long baselineOpen = 0;
+      unsigned long thresholdCloseIt = 0;  
+      
+      // Sensitivity percentages
+      const float CUTOFF_SENSITIVITY = 0.055; 
+      const float ALARM_SENSITIVITY = 0.025;  
+      const float RECONNECT_SENSITIVITY = 0.025;  
+      
+      // Dynamic Adaptive Drift 
+      const float DRIFT_SLOW_PCT = 0.003;        // 0.3% small drift threshold
+      const float DRIFT_FAST_PCT = 0.030;        // 3.0% large drift threshold
+      
+      // Drift Variables when Circuit Closed 
+      const unsigned long CLOSED_DRIFT_SLOW_TIME = 500;   // 500ms for small drift when closed
+      const unsigned long CLOSED_DRIFT_FAST_TIME = 2000;  // 2000ms (2s) for big drift (< cutoff) when closed
+      
+      // Drift Variables when Circuit Opened
+      const unsigned long OPEN_DRIFT_SLOW_TIME   = 1000;  // 1000ms (1s) for small drift when open
+      const unsigned long OPEN_DRIFT_FAST_TIME   = 30000; // 30000ms (30s) for big drift when open
+      
+      // Dynamic drift tracking timers
+      unsigned long slowDriftStartTime = 0;
+      unsigned long fastDriftStartTime = 0;
+      float currentDriftRatio = 1.0;             
+      
+      bool circuitIsClosed = true;        
+      unsigned long lastSerialTime = 0;
+      
+      // RECONNECT TIMER VARIABLES 
+      unsigned long clearStartTime = 0;
+      const unsigned long RECONNECT_DELAY = 3000; // 3000ms = 3 seconds
+      
+      int absMax = 0;
+      int absMin = 1023;
+      
+      // Helper function to recalculate closed state thresholds 
+      void updateClosedThresholds(unsigned long newBase) {
+          baselineClosed = (SMOOTH_DOWN * newBase) + ((1.0 - SMOOTH_DOWN) * newBase);
+          thresholdAlarm = baselineClosed - (baselineClosed * ALARM_SENSITIVITY);
+          thresholdOpenIt = baselineClosed - (baselineClosed * CUTOFF_SENSITIVITY);
+      }
+      
+      // Helper function to recalculate open state thresholds
+      void updateOpenThresholds(unsigned long newBase) {
+          baselineOpen = newBase;
+          thresholdCloseIt = baselineOpen - (baselineOpen * RECONNECT_SENSITIVITY);
+      }
+      
+      // Wait a bit for calibration
+      void waitForStageAdvance() {
+          while (digitalRead(STAGE_PIN) == HIGH) {
+              delay(1); 
+          }
+          delay(50); // Debounce
+          
+          while (digitalRead(STAGE_PIN) == LOW) {
+              delay(1);
+          }
+          delay(50); // Debounce
+      }
+      
+      void setup() {
+          pinMode(RELAY_PIN, OUTPUT);
+          digitalWrite(RELAY_PIN, LOW); // Inverted logic: LOW = CLOSED (Normal operation)
+          circuitIsClosed = true;
+      
+          pinMode(ALARM_PIN, OUTPUT);
+          digitalWrite(ALARM_PIN, LOW); // Initialize alarm to OFF
+      
+          pinMode(GENERATOR_PIN, OUTPUT);
+          pinMode(STAGE_PIN, INPUT_PULLUP); 
+      
+          // TIMER 2 SQUARE WAVE GENERATION
+          TCCR2A = _BV(COM2A0) | _BV(WGM21); 
+          TCCR2B = _BV(CS20); // No prescaling (N=1)
+          OCR2A = 7;          // 1MHz square signal
+      
+          Serial.begin(115200);
+      
+          // Overclock ADC prescaler to 32 for fast loop cycles
+          ADCSRA = (ADCSRA & 0xF8) | 0x05;
+      
+          delay(800); 
+          Serial.println(F("\\n============================================="));
+          Serial.println(F("     ASYMMETRICAL SENSOR SYSTEM CALIBRATION   "));
+          Serial.println(F("============================================="));
+          
+          // STAGE 1: LIVE CLOSED-STATE CALIBRATION 
+          Serial.println(F("\\n[STAGE 1] Calibrating CLOSED State (Relay is ON/LOW)..."));
+          Serial.println(F("-> Leave hands clear or mimic normal running noise."));
+          Serial.println(F("-> Ground Pin 9 to lock baselines and proceed."));
+          
+          int calMinClosed = 1023;
+          int calMaxClosed = 0;
+          unsigned long localSerialTime = 0;
+          unsigned long autoCalibration = millis();
+          unsigned long autoCalibrationTime = 2000;
+      
+          while (digitalRead(STAGE_PIN) == HIGH && millis() - autoCalibration < autoCalibrationTime) {
+              int sample = analogRead(SENSOR_PIN);
+              if (sample < calMinClosed) calMinClosed = sample;
+              if (sample > calMaxClosed) calMaxClosed = sample;
+              
+              if (millis() - localSerialTime >= 150) {
+                  localSerialTime = millis();
+                  Serial.print(F("Live ADC: ")); Serial.print(sample);
+                  Serial.print(F(" | Min: ")); Serial.print(calMinClosed);
+                  Serial.print(F(" | Max: ")); Serial.println(calMaxClosed);
+              }
+          }
+          
+          unsigned long openxvalue = (calMaxClosed + calMinClosed) / 2;
+          updateClosedThresholds(openxvalue);
+          
+          Serial.println(F(">> STAGE 1 LOCKED. Release Pin 9 wire..."));
+          // waitForStageAdvance(); 
+      
+          // STAGE 2: LIVE OPEN-STATE CALIBRATION 
+          digitalWrite(RELAY_PIN, HIGH); // Open the relay circuit
+          delay(1000);                    // Let power rail voltage stabilize
+          
+          Serial.println(F("\\n[STAGE 2] Calibrating OPEN State (Relay is OFF/HIGH)..."));
+          Serial.println(F("-> Ground Pin 9 when finished tracking open-state noise."));
+          
+          int calMinOpen = 1023;
+          int calMaxOpen = 0;
+          localSerialTime = 0;
+          autoCalibration = millis();
+      
+          while (digitalRead(STAGE_PIN) == HIGH && millis() - autoCalibration < autoCalibrationTime) {
+              int sample = analogRead(SENSOR_PIN);
+              if (sample < calMinOpen) calMinOpen = sample;
+              if (sample > calMaxOpen) calMaxOpen = sample;
+              
+              if (millis() - localSerialTime >= 150) {
+                  localSerialTime = millis();
+                  Serial.print(F("Live Sag ADC: ")); Serial.print(sample);
+                  Serial.print(F(" | Min: ")); Serial.print(calMinOpen);
+                  Serial.print(F(" | Max: ")); Serial.println(calMaxOpen);
+              }
+          }
+          
+          unsigned long closexvalue = (calMinOpen + calMaxOpen) / 2;
+          updateOpenThresholds(closexvalue);
+          
+          Serial.println(F(">> STAGE 2 LOCKED. Release Pin 9 wire..."));
+          // waitForStageAdvance(); 
+      
+          // RESUME NORMAL RUNTIME OPERATION
+          digitalWrite(RELAY_PIN, LOW); // Re-close the relay to start safe
+          circuitIsClosed = true;
+          smoothedAmp = baselineClosed; 
+          delay(1000);
+      
+          Serial.println(F("\\n--- CALIBRATION PROFILES SET ---"));
+          Serial.print(F("Closed Base: ")); Serial.print(baselineClosed); 
+          Serial.print(F(" | Alarm At: ")); Serial.print(thresholdAlarm);
+          Serial.print(F(" | Cutoff At: ")); Serial.println(thresholdOpenIt);
+          Serial.print(F("Open Base:   ")); Serial.print(baselineOpen);   
+          Serial.print(F(" | Reconnect At: ")); Serial.println(thresholdCloseIt);
+          Serial.println(F("================================\\n"));
+      
+          delay(1500);
+      
+          absMax = 0;
+          absMin = 1023;
+      }
+      
+      // Function to calculate Peak-to-Peak amplitude while discarding rogue spikes
+      int readCleanRawAmp(byte pin) {
+          const int SAMPLE_COUNT = 64;
+          int samples[SAMPLE_COUNT];
+          long sum = 0;
+      
+          for (int i = 0; i < SAMPLE_COUNT; i++) {
+              samples[i] = analogRead(pin);
+              sum += samples[i];
+          }
+          float roughMean = (float)sum / SAMPLE_COUNT;
+      
+          float weightedSum = 0;
+          float totalWeight = 0;
+          const float k = 2.5; 
+      
+          for (int i = 0; i < SAMPLE_COUNT; i++) {
+              float distance = (samples[i] - roughMean) / k;
+              float weight = 1.0 / (1.0 + (distance * distance));
+              
+              weightedSum += samples[i] * weight;
+              totalWeight += weight;
+          }
+      
+          return (int)(weightedSum / totalWeight);
+      }
+      
+      void loop() {
+          int rawAmp = readCleanRawAmp(SENSOR_PIN);
+      
+          // 1. Asymmetrical Filtering Processing
+          if (rawAmp < smoothedAmp) {
+              smoothedAmp = (SMOOTH_DOWN * rawAmp) + ((1.0 - SMOOTH_DOWN) * smoothedAmp);
+          } else {
+              smoothedAmp = (SMOOTH_UP * rawAmp) + ((1.0 - SMOOTH_UP) * smoothedAmp);
+          }
+      
+          // 2. Active State Baseline Drift Analysis
+          unsigned long activeBase = circuitIsClosed ? baselineClosed : baselineOpen;
+          if (activeBase > 0) {
+              currentDriftRatio = smoothedAmp / (float)activeBase;
+          } else {
+              currentDriftRatio = 1.0;
+          }
+      
+          float absDriftDev = fabs(currentDriftRatio - 1.0); // Absolute drift percentage from 1.000
+      
+          // Select state-specific target delay values
+          unsigned long targetSlowTime = circuitIsClosed ? CLOSED_DRIFT_SLOW_TIME : OPEN_DRIFT_SLOW_TIME;
+          unsigned long targetFastTime = circuitIsClosed ? CLOSED_DRIFT_FAST_TIME : OPEN_DRIFT_FAST_TIME;
+      
+          // Check if within safe limits to drift (does NOT trigger cutoff in CLOSED, or reconnect in OPEN)
+          bool withinSafeLimits = circuitIsClosed ? (smoothedAmp >= thresholdOpenIt) : (smoothedAmp <= thresholdCloseIt);
+      
+          if (withinSafeLimits) {
+              // SMALL/SLOW DRIFT (0.1% to 3.0%)
+              if (absDriftDev >= DRIFT_SLOW_PCT && absDriftDev < DRIFT_FAST_PCT) {
+                  fastDriftStartTime = 0; // Cancel fast/large drift counter
+                  
+                  if (slowDriftStartTime == 0) {
+                      slowDriftStartTime = millis();
+                  } else if (millis() - slowDriftStartTime >= targetSlowTime) {
+                      // Adapt baseline and recalculate thresholds for active state
+                      unsigned long newBase = (unsigned long)(smoothedAmp + 0.5);
+                      if (circuitIsClosed) {
+                          updateClosedThresholds(newBase);
+                      } else {
+                          updateOpenThresholds(newBase);
+                      }
+                      slowDriftStartTime = 0;
+                  }
+              } 
+              // LARGE/FAST DRIFT (>= 3.0%)
+              else if (absDriftDev >= DRIFT_FAST_PCT) {
+                  slowDriftStartTime = 0; // Cancel small drift counter
+                  
+                  if (fastDriftStartTime == 0) {
+                      fastDriftStartTime = millis();
+                  } else if (millis() - fastDriftStartTime >= targetFastTime) {
+                      // Signal sustained at shifted level -> accept as new base
+                      unsigned long newBase = (unsigned long)(smoothedAmp + 0.5);
+                      if (circuitIsClosed) {
+                          updateClosedThresholds(newBase);
+                      } else {
+                          updateOpenThresholds(newBase);
+                      }
+                      fastDriftStartTime = 0;
+                  }
+              } 
+              else {
+                  // Signal is stable around baseline (< 0.1% drift) -> reset timers
+                  slowDriftStartTime = 0;
+                  fastDriftStartTime = 0;
+              }
+          } else {
+              // Cutoff or reconnect limit reached -> pause drift tracking
+              slowDriftStartTime = 0;
+              fastDriftStartTime = 0;
+          }
+      
+          // 3. Dual-State System Control Machine
+          if (circuitIsClosed) {
+              // CIRCUIT CLOSED MODE (Normal Working State) 
+              
+              // Handle Early Warning Proximity Alarm
+              if (smoothedAmp < thresholdAlarm) {
+                  digitalWrite(ALARM_PIN, HIGH);
+              } else {
+                  digitalWrite(ALARM_PIN, LOW);
+              }
+      
+              // Handle Main Safety Trip 
+              if (smoothedAmp < thresholdOpenIt) {
+                  circuitIsClosed = false;
+                  digitalWrite(RELAY_PIN, HIGH); // HIGH opens relay
+                  digitalWrite(ALARM_PIN, LOW);
+                  smoothedAmp = baselineOpen;
+                  clearStartTime = 0;
+                  slowDriftStartTime = 0;
+                  fastDriftStartTime = 0;
+                  absMax = 0;
+                  absMin = 1023;
+              }
+          } 
+          else {
+              // CIRCUIT OPEN MODE (Tripped/Safe State)
+              digitalWrite(ALARM_PIN, LOW);
+      
+              if (smoothedAmp > thresholdCloseIt) {
+                  if (clearStartTime == 0) {
+                      clearStartTime = millis();
+                  }
+      
+                  if (millis() - clearStartTime >= RECONNECT_DELAY) {
+                      circuitIsClosed = true;
+                      digitalWrite(RELAY_PIN, LOW); // LOW closes relay
+                      smoothedAmp = baselineClosed;
+                      clearStartTime = 0;
+                      slowDriftStartTime = 0;
+                      fastDriftStartTime = 0;
+                      absMax = 0;
+                      absMin = 1023;
+                  }
+              } 
+              else {
+                  clearStartTime = 0;
+              }
+          }
+      
+          // 4. Formatted Telemetry Reporting (Every 120ms)
+          if (millis() - lastSerialTime >= 120) {
+              lastSerialTime = millis();
+      
+              unsigned long activeTarget = circuitIsClosed ? thresholdOpenIt : thresholdCloseIt;
+      
+              Serial.print(F("R_Min: "));         Serial.print(absMin);
+              Serial.print(F(" | R_Max: "));      Serial.print(absMax);
+              Serial.print(F(" | Smooth: "));     Serial.print(smoothedAmp, 1);
+              Serial.print(F(" | DriftRatio: ")); Serial.print(currentDriftRatio, 3);
+              Serial.print(F(" | TargetThresh: ")); Serial.print(activeTarget);
+              Serial.print(F(" | ALARM: "));      Serial.print(thresholdAlarm);
+              
+              // Reconnect Timer Telemetry
+              Serial.print(F(" | Timer: "));
+              if (!circuitIsClosed && clearStartTime > 0) {
+                  float secondsLeft = (RECONNECT_DELAY - (millis() - clearStartTime)) / 1000.0;
+                  Serial.print(secondsLeft, 1); Serial.print(F("s"));
+              } else if (!circuitIsClosed) {
+                  Serial.print(F("Hand Near"));
+              } else {
+                  Serial.print(F("OFF"));
+              }
+      
+              Serial.print(F(" | State: "));      Serial.println(circuitIsClosed ? F("CLOSED") : F("OPEN"));
+          }
+      }`
     }
   ],
 
   downloads: [
-    {
-      name: "Complete Research Thesis PDF (SUST Standard)",
-      size: "4.5 MB",
-      type: "Document",
-      link:
-        "https://www.motarig.com/files/human_aware_shock_prevention_sys.pdf"
-    }
+    { name: "Full Project File", size: "4.5 MB", type: "Document", link: "http://www.motarig.com/files/human_aware_shock_prevention_sys.pdf" }
   ]
 };
 
-
 // ============================================================================
-// 2. LOGO
+// 2. SUST LOGO COMPONENT
 // ============================================================================
 function SustLogo({ size = 52 }) {
   return (
-    <Image
-      src={SUSTLOGO}
-      alt="Sudan University of Science and Technology Logo"
-      width={size}
-      height={size}
-      priority
-    />
+    <Image src={SUSTLOGO} alt="Sudan University of Science and Technology logo"
+      width={size} height={size}/>
   );
 }
 
+// ============================================================================
+// 3. LIGHT MODE STYLES (same structure, LTR)
+// ============================================================================
+const LIGHT_STYLES = {
+  container: {
+    width: '100%',
+    minWidth: 0,
+    minHeight: '100vh',
+    backgroundColor: '#F8FAFC',
+    color: '#0F172A',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    paddingBottom: '3rem',
+    boxSizing: 'border-box',
+    direction: 'ltr'
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+    borderBottom: '1px solid #E2E8F0',
+    position: 'sticky',
+    top: 0,
+    zIndex: 40,
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)'
+  },
+  headerInner: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '1.25rem 1.5rem',
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '1.25rem'
+  },
+  brandingBox: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem'
+  },
+  instEnglish: {
+    fontSize: '0.875rem',
+    fontWeight: 700,
+    color: '#1E3A8A',
+    letterSpacing: '-0.01em',
+    margin: 0
+  },
+  instArabic: {
+    fontSize: '0.9375rem',
+    fontWeight: 700,
+    color: '#0284C7',
+    margin: '0.1rem 0 0 0'
+  },
+  deptText: {
+    fontSize: '0.75rem',
+    color: '#64748B',
+    margin: '0.2rem 0 0 0'
+  },
+  badge: {
+    padding: '0.35rem 0.85rem',
+    borderRadius: '9999px',
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    backgroundColor: '#F0FDF4',
+    color: '#166534',
+    border: '1px solid #BBF7D0',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+  },
+  tabsRow: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '0.25rem 1.5rem 0 1.5rem',
+    display: 'flex',
+    gap: '0.5rem',
+    overflowX: 'auto',
+    borderTop: '1px solid #F1F5F9'
+  },
+  tabBtn: (isActive) => ({
+    padding: '0.65rem 1.1rem',
+    fontSize: '0.8125rem',
+    fontWeight: isActive ? 600 : 500,
+    borderRadius: '0.5rem 0.5rem 0 0',
+    cursor: 'pointer',
+    border: 'none',
+    backgroundColor: isActive ? '#F8FAFC' : 'transparent',
+    color: isActive ? '#1E3A8A' : '#64748B',
+    borderBottom: isActive ? '3px solid #1E3A8A' : '3px solid transparent',
+    transition: 'all 0.15s ease',
+    whiteSpace: 'nowrap'
+  }),
+  main: {
+    width: '100%',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '2rem 1.5rem',
+    boxSizing: 'border-box',
+    minWidth: 0
+  },
+  heroCard: {
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    borderRadius: '0.875rem',
+    padding: '1.75rem',
+    marginBottom: '2rem',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+    borderLeft: '5px solid #1E3A8A'
+  },
+  heroTitle: {
+    fontSize: '1.5rem',
+    fontWeight: 800,
+    color: '#0F172A',
+    margin: '0 0 0.5rem 0',
+    lineHeight: 1.35
+  },
+  heroSub: {
+    fontSize: '0.875rem',
+    color: '#475569',
+    margin: 0
+  },
+  metricsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: '1rem',
+    marginBottom: '2rem'
+  },
+  metricCard: {
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    padding: '1.25rem',
+    borderRadius: '0.75rem',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+  },
+  metricLabel: {
+    fontSize: '0.75rem',
+    color: '#64748B',
+    fontWeight: 600,
+    letterSpacing: '0.025em',
+    display: 'block'
+  },
+  metricVal: {
+    fontSize: '1.5rem',
+    fontWeight: 800,
+    color: '#1E3A8A',
+    marginTop: '0.35rem',
+    display: 'block'
+  },
+  metricSub: {
+    fontSize: '0.75rem',
+    color: '#0284C7',
+    marginTop: '0.25rem',
+    display: 'block',
+    fontWeight: 500
+  },
+  contentGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gap: '1.5rem'
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    borderRadius: '0.875rem',
+    padding: '1.5rem',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+  },
+  cardTitle: {
+    fontSize: '1.05rem',
+    fontWeight: 700,
+    color: '#0F172A',
+    marginTop: 0,
+    marginBottom: '1rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  text: {
+    fontSize: '0.875rem',
+    color: '#334155',
+    lineHeight: 1.8,
+    margin: '0 0 1rem 0',
+    textAlign: 'justify'
+  },
+  personCard: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '0.75rem',
+    backgroundColor: '#F8FAFC',
+    borderRadius: '0.5rem',
+    border: '1px solid #E2E8F0',
+    marginBottom: '0.5rem'
+  },
+  avatarCircle: {
+    width: '38px',
+    height: '38px',
+    borderRadius: '50%',
+    backgroundColor: '#DBEAFE',
+    color: '#1E3A8A',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 700,
+    fontSize: '0.875rem',
+    flexShrink: 0
+  },
+  btnPrimary: {
+    display: 'inline-block',
+    width: '100%',
+    padding: '0.75rem 1rem',
+    backgroundColor: '#1E3A8A',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: 600,
+    fontSize: '0.875rem',
+    borderRadius: '0.5rem',
+    border: 'none',
+    cursor: 'pointer',
+    marginTop: '1rem',
+    boxShadow: '0 2px 4px rgba(30, 58, 138, 0.2)',
+    boxSizing: 'border-box'
+  },
+  videoPlayerContainer: {
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    borderRadius: '1rem',
+    padding: '1.25rem',
+    marginBottom: '2rem',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+  },
+  videoWrapper: {
+    width: '100%',
+    aspectRatio: '16/9',
+    backgroundColor: '#0F172A',
+    borderRadius: '0.75rem',
+    overflow: 'hidden'
+  },
+  videoGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+    gap: '1rem'
+  },
+  videoCard: (isSelected) => ({
+    backgroundColor: isSelected ? '#EFF6FF' : '#FFFFFF',
+    border: isSelected ? '2px solid #2563EB' : '1px solid #E2E8F0',
+    borderRadius: '0.75rem',
+    padding: '0.75rem',
+    cursor: 'pointer',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+  }),
+  imageGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: '1.25rem'
+  },
+  imageCard: {
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    borderRadius: '0.75rem',
+    overflow: 'hidden',
+    cursor: 'pointer',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+  },
+  figureBadge: {
+    position: 'absolute',
+    top: '0.5rem',
+    right: '0.5rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    color: '#1E3A8A',
+    fontSize: '0.6875rem',
+    fontWeight: 700,
+    padding: '0.2rem 0.525rem',
+    borderRadius: '0.25rem',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+    fontFamily: 'monospace'
+  },
+  modalBackdrop: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    backdropFilter: 'blur(4px)',
+    zIndex: 50,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '1rem'
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: '1rem',
+    maxWidth: '800px',
+    width: '100%',
+    overflow: 'hidden',
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)'
+  },
+  codeContainer: {
+    backgroundColor: '#0F172A',
+    border: '1px solid #1E293B',
+    borderRadius: '0.875rem',
+    overflow: 'hidden',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    direction: 'ltr'
+  },
+  codeHeader: {
+    backgroundColor: '#1E293B',
+    padding: '0.75rem 1.25rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  downloadGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gap: '1rem'
+  },
+  downloadCard: {
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    borderRadius: '0.75rem',
+    padding: '1.25rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+  }
+};
 
 // ============================================================================
-// 3. MAIN COMPONENT
+// 4. RESPONSIVE CSS — desktop, tablet, mobile and very small screens
 // ============================================================================
-export default function ResearchShowcase() {
+const RESPONSIVE_CSS = `
+  .research-page,
+  .research-page * {
+    box-sizing: border-box;
+  }
 
-  const [activeTab, setActiveTab] = useState('overview');
+  .research-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
 
-  const [selectedVideo, setSelectedVideo] = useState(
-    RESEARCH_DATA.videos[0]
-  );
+  .research-page img,
+  .research-page video {
+    max-width: 100%;
+  }
 
-  const [selectedCodeIndex, setSelectedCodeIndex] = useState(0);
+  .research-header-inner,
+  .research-branding,
+  .research-header-actions,
+  .research-tabs,
+  .research-main,
+  .research-content-grid > *,
+  .research-metrics > *,
+  .research-video-grid > *,
+  .research-image-grid > *,
+  .research-download-grid > *,
+  .research-person-card {
+    min-width: 0;
+  }
 
-  const [activeImageModal, setActiveImageModal] =
-    useState(null);
+  .research-header-inner {
+    width: 100%;
+  }
 
-  const [copiedCode, setCopiedCode] =
-    useState(false);
+  .research-branding {
+    flex: 1 1 520px;
+  }
 
+  .research-header-actions {
+    flex: 0 1 auto;
+    max-width: 100%;
+  }
 
-  // ==========================================================================
-  // COPY CODE
-  // ==========================================================================
-  const handleCopyCode = async (codeText) => {
+  .research-header-actions > div {
+    max-width: 100%;
+  }
 
-    try {
+  .research-tabs {
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
 
-      await navigator.clipboard.writeText(codeText);
+  .research-tabs::-webkit-scrollbar {
+    height: 4px;
+  }
 
-      setCopiedCode(true);
+  .research-main {
+    width: 100%;
+  }
 
-      setTimeout(() => {
-        setCopiedCode(false);
-      }, 2000);
+  .research-content-grid,
+  .research-metrics,
+  .research-video-grid,
+  .research-image-grid,
+  .research-download-grid {
+    width: 100%;
+    min-width: 0;
+  }
 
-    } catch (error) {
+  .research-content-grid > *,
+  .research-metrics > *,
+  .research-video-grid > *,
+  .research-image-grid > *,
+  .research-download-grid > * {
+    min-width: 0;
+    max-width: 100%;
+  }
 
-      console.error(
-        'Could not copy code:',
-        error
-      );
+  .research-page p,
+  .research-page h1,
+  .research-page h2,
+  .research-page h3,
+  .research-page h4,
+  .research-page span {
+    overflow-wrap: anywhere;
+  }
 
-    }
-  };
+  .research-video-metrics {
+    min-width: 0 !important;
+    max-width: 100%;
+    flex: 0 1 auto;
+  }
 
+  .research-code-scroll {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
 
-  // ==========================================================================
-  // DOWNLOAD
-  // ==========================================================================
-  const handleDownload = (url, filename) => {
+  .research-code-scroll pre {
+    width: max-content;
+    min-width: 100%;
+  }
 
-    const link =
-      document.createElement('a');
+  .research-modal-content {
+    max-width: min(800px, 100%);
+    max-height: calc(100vh - 2rem);
+    overflow: auto;
+  }
 
-    link.href = url;
+  .research-modal-image {
+    max-width: 100%;
+    max-height: 60vh;
+  }
 
-    link.download =
-      filename ||
-      url.split('/').pop() ||
-      'download';
-
-    link.rel = 'noopener noreferrer';
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-  };
-
-
-  // ==========================================================================
-  // RESPONSIVE CSS
-  // ==========================================================================
-  const responsiveCSS = `
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      max-width: 100%;
-      overflow-x: hidden;
-    }
-
-    body {
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-    }
-
-    button,
-    a,
-    input,
-    select,
-    textarea {
-      font: inherit;
-    }
-
-    button {
-      touch-action: manipulation;
-    }
-
-
-    /* ==========================================================
-       PAGE
-       ========================================================== */
-
-    .research-page {
-      width: 100%;
-      min-width: 0;
-      overflow-x: hidden;
-    }
-
-
-    /* ==========================================================
-       HEADER
-       ========================================================== */
-
-    .research-header {
-      width: 100%;
-    }
-
+  @media (max-width: 900px) {
     .research-header-inner {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-
-      padding:
-        clamp(0.75rem, 3vw, 1.25rem)
-        clamp(0.75rem, 3vw, 1.5rem);
-
-      display: flex;
-      flex-wrap: wrap;
-
-      justify-content: space-between;
-      align-items: center;
-
-      gap: clamp(0.75rem, 2vw, 1.25rem);
+      padding: 1rem;
+      gap: 0.9rem;
     }
-
-    .research-branding {
-      display: flex;
-      align-items: center;
-
-      gap: clamp(0.6rem, 2vw, 1rem);
-
-      min-width: 0;
-      flex: 1 1 500px;
-    }
-
-    .research-branding-text {
-      min-width: 0;
-      max-width: 100%;
-    }
-
-    .research-branding-text h1,
-    .research-branding-text h2,
-    .research-branding-text p {
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-
-    .research-header-actions {
-      min-width: 0;
-
-      display: flex;
-      flex-direction: column;
-
-      align-items: flex-end;
-      justify-content: center;
-
-      gap: 0.5rem;
-
-      flex: 0 1 auto;
-    }
-
-
-    /* ==========================================================
-       NAVIGATION
-       ========================================================== */
-
-    .research-tabs {
-      width: 100%;
-      max-width: 1200px;
-
-      margin: 0 auto;
-
-      padding:
-        0.25rem
-        clamp(0.5rem, 3vw, 1.5rem)
-        0;
-
-      display: flex;
-
-      gap: 0.35rem;
-
-      overflow-x: auto;
-      overflow-y: hidden;
-
-      scrollbar-width: thin;
-
-      -webkit-overflow-scrolling: touch;
-
-      overscroll-behavior-x: contain;
-    }
-
-    .research-tabs::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    .research-tabs button {
-      flex: 0 0 auto;
-      white-space: nowrap;
-
-      min-height: 42px;
-    }
-
-
-    /* ==========================================================
-       MAIN
-       ========================================================== */
 
     .research-main {
-      width: 100%;
-      max-width: 1200px;
-
-      margin: 0 auto;
-
-      padding:
-        clamp(1rem, 4vw, 2rem)
-        clamp(0.75rem, 3vw, 1.5rem);
+      padding: 1.35rem 1rem;
     }
-
-
-    /* ==========================================================
-       HERO
-       ========================================================== */
-
-    .research-hero {
-      width: 100%;
-      min-width: 0;
-
-      overflow: hidden;
-    }
-
-    .research-hero h1 {
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-
-
-    /* ==========================================================
-       METRICS
-       ========================================================== */
-
-    .research-metrics {
-      width: 100%;
-      min-width: 0;
-
-      display: grid;
-
-      grid-template-columns:
-        repeat(4, minmax(0, 1fr)) !important;
-
-      gap: 1rem;
-    }
-
-    .research-metric {
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .research-metric-value {
-      display: block;
-
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-
-
-    /* ==========================================================
-       CONTENT GRID
-       ========================================================== */
 
     .research-content-grid {
-      width: 100%;
-      min-width: 0;
-
-      display: grid;
-
-      grid-template-columns:
-        minmax(0, 2fr)
-        minmax(280px, 1fr) !important;
-
-      gap: 1.5rem;
-
-      align-items: start;
+      grid-template-columns: minmax(0, 1fr) !important;
     }
 
-    .research-card {
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .research-card-wide {
+    .research-content-grid > * {
       grid-column: auto !important;
     }
 
-
-    /* ==========================================================
-       TEAM
-       ========================================================== */
-
-    .research-person {
-      min-width: 0;
+    .research-metrics {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 
-    .research-person-info {
-      min-width: 0;
-      flex: 1;
+    .research-video-grid,
+    .research-image-grid,
+    .research-download-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .research-header-inner {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0.75rem;
+      gap: 0.7rem;
     }
 
-    .research-person-info h4,
-    .research-person-info p {
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-
-
-    /* ==========================================================
-       VIDEO
-       ========================================================== */
-
-    .research-video-container {
+    .research-branding {
       width: 100%;
-      min-width: 0;
+      flex: none;
+      gap: 0.7rem;
     }
 
-    .research-video-wrapper {
-      width: 100%;
-
-      aspect-ratio: 16 / 9;
-
-      min-height: 0;
-
-      overflow: hidden;
+    .research-branding img {
+      width: 44px !important;
+      height: 44px !important;
+      flex: 0 0 44px;
     }
 
-    .research-video-wrapper video {
-      display: block;
-
+    .research-header-actions {
       width: 100%;
-      height: 100%;
-
-      max-width: 100%;
+      flex: none;
+      align-items: stretch !important;
     }
 
-    .research-video-info-row {
+    .research-header-actions > div {
       width: 100%;
-      min-width: 0;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .research-tabs {
+      padding: 0.15rem 0.65rem 0;
+      gap: 0.25rem;
+    }
+
+    .research-main {
+      padding: 1rem 0.65rem;
+    }
+
+    .research-hero {
+      padding: 1.1rem !important;
+      margin-bottom: 1.1rem !important;
+    }
+
+    .research-metrics,
+    .research-video-grid,
+    .research-image-grid,
+    .research-download-grid {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .research-metric-card,
+    .research-card {
+      padding: 1rem !important;
+    }
+
+    .research-video-player {
+      padding: 0.75rem !important;
+      margin-bottom: 1.1rem !important;
     }
 
     .research-video-info {
-      min-width: 0;
-      flex: 1 1 300px;
+      flex-direction: column;
+      align-items: stretch !important;
     }
 
     .research-video-metrics {
-      min-width: 0;
-      flex: 0 1 220px;
-    }
-
-    .research-video-grid {
-      display: grid;
-
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr)) !important;
-
-      gap: 1rem;
-    }
-
-    .research-video-card {
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .research-video-card h4,
-    .research-video-card p {
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-
-
-    /* ==========================================================
-       GALLERY
-       ========================================================== */
-
-    .research-gallery-header {
-      min-width: 0;
-    }
-
-    .research-gallery-grid {
-      display: grid;
-
-      grid-template-columns:
-        repeat(3, minmax(0, 1fr)) !important;
-
-      gap: 1.25rem;
-    }
-
-    .research-image-card {
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .research-image-card img {
-      display: block;
-
-      max-width: 100%;
-    }
-
-
-    /* ==========================================================
-       MODAL
-       ========================================================== */
-
-    .research-modal {
-      padding: clamp(0.5rem, 3vw, 1rem);
-    }
-
-    .research-modal-content {
-      width: min(800px, 100%);
-
-      max-height:
-        calc(100dvh - 1rem);
-
-      overflow-y: auto;
-    }
-
-    .research-modal-image-container {
-      max-height: 65dvh;
-      overflow: auto;
-    }
-
-    .research-modal-image {
-      display: block;
-
-      width: auto;
-      height: auto;
-
-      max-width: 100%;
-      max-height: 60dvh;
-    }
-
-
-    /* ==========================================================
-       CODE
-       ========================================================== */
-
-    .research-code-toolbar {
       width: 100%;
-      min-width: 0;
     }
 
-    .research-code-buttons {
-      max-width: 100%;
-
-      display: flex;
-
-      overflow-x: auto;
-
-      padding-bottom: 2px;
-
-      scrollbar-width: thin;
-
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .research-code-container {
-      width: 100%;
-      min-width: 0;
-
-      overflow: hidden;
-    }
-
-    .research-code-scroll {
-      width: 100%;
-      max-width: 100%;
-
-      overflow-x: auto;
-      overflow-y: hidden;
-
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .research-code {
-      min-width: max-content;
-      width: max-content;
-    }
-
-
-    /* ==========================================================
-       DOWNLOADS
-       ========================================================== */
-
-    .research-download-grid {
-      display: grid;
-
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr)) !important;
-
-      gap: 1rem;
+    .research-image-preview {
+      height: auto !important;
+      aspect-ratio: 16 / 10;
     }
 
     .research-download-card {
-      min-width: 0;
+      flex-direction: column;
+      align-items: stretch !important;
+      gap: 0.75rem;
     }
 
-    .research-download-info {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .research-download-info h3 {
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-
-
-    /* ==========================================================
-       FOOTER
-       ========================================================== */
-
-    .research-footer {
+    .research-download-card > button {
       width: 100%;
+    }
 
-      padding-left:
-        clamp(0.75rem, 3vw, 1.5rem);
+    .research-code-header {
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: flex-start !important;
+    }
 
-      padding-right:
-        clamp(0.75rem, 3vw, 1.5rem);
+    .research-code-header > div:first-child {
+      min-width: 0;
+      max-width: 100%;
+    }
 
+    .research-code-description {
       overflow-wrap: anywhere;
+      line-height: 1.6;
     }
 
-
-    /* ==========================================================
-       TABLETS
-       ========================================================== */
-
-    @media (max-width: 900px) {
-
-      .research-header-actions {
-        width: 100%;
-
-        flex-direction: row !important;
-
-        justify-content: space-between !important;
-
-        align-items: center !important;
-      }
-
-      .research-metrics {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr)) !important;
-      }
-
-      .research-content-grid {
-        grid-template-columns: 1fr !important;
-      }
-
-      .research-card-wide {
-        grid-column: auto !important;
-      }
-
-      .research-gallery-grid {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr)) !important;
-      }
+    .research-code-scroll {
+      padding: 0.7rem !important;
+      font-size: 0.72rem !important;
     }
 
-
-    /* ==========================================================
-       MOBILE
-       ========================================================== */
-
-    @media (max-width: 640px) {
-
-      .research-header-inner {
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-      }
-
-      .research-branding {
-        width: 100%;
-        flex-basis: 100%;
-      }
-
-      .research-branding img {
-        width: 42px !important;
-        height: 42px !important;
-      }
-
-      .research-branding-text h1 {
-        font-size: 0.75rem !important;
-        line-height: 1.3 !important;
-      }
-
-      .research-branding-text h2 {
-        font-size: 0.7rem !important;
-        line-height: 1.3 !important;
-      }
-
-      .research-branding-text p {
-        font-size: 0.65rem !important;
-        line-height: 1.3 !important;
-      }
-
-      .research-header-actions {
-        width: 100%;
-
-        flex-direction: row !important;
-
-        justify-content: space-between !important;
-
-        align-items: center !important;
-      }
-
-      .research-header-actions span,
-      .research-header-actions a {
-        font-size: 0.65rem !important;
-      }
-
-
-      /* NAV */
-
-      .research-tabs {
-        gap: 0.25rem;
-      }
-
-      .research-tabs button {
-        padding: 0.55rem 0.7rem !important;
-        font-size: 0.7rem !important;
-
-        min-height: 40px;
-      }
-
-
-      /* MAIN */
-
-      .research-main {
-        padding-top: 1rem;
-      }
-
-
-      /* HERO */
-
-      .research-hero {
-        padding: 1rem !important;
-
-        margin-bottom: 1rem !important;
-
-        border-left-width: 4px !important;
-      }
-
-      .research-hero h1 {
-        font-size:
-          clamp(1.05rem, 5vw, 1.35rem) !important;
-
-        line-height: 1.3 !important;
-      }
-
-      .research-hero > span {
-        font-size: 0.65rem !important;
-      }
-
-      .research-hero p {
-        font-size: 0.75rem !important;
-      }
-
-
-      /* METRICS */
-
-      .research-metrics {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr)) !important;
-
-        gap: 0.6rem;
-
-        margin-bottom: 1rem !important;
-      }
-
-      .research-metric {
-        padding: 0.85rem !important;
-      }
-
-      .research-metric-label {
-        font-size: 0.62rem !important;
-      }
-
-      .research-metric-value {
-        font-size:
-          clamp(0.95rem, 4vw, 1.25rem) !important;
-
-        line-height: 1.2 !important;
-      }
-
-      .research-metric-sub {
-        font-size: 0.62rem !important;
-      }
-
-
-      /* CARDS */
-
-      .research-content-grid {
-        gap: 1rem !important;
-      }
-
-      .research-card {
-        padding: 1rem !important;
-
-        border-radius: 0.7rem !important;
-      }
-
-      .research-card h2,
-      .research-card h3 {
-        font-size: 0.95rem !important;
-      }
-
-      .research-card p {
-        font-size: 0.78rem !important;
-        line-height: 1.6 !important;
-      }
-
-
-      /* PEOPLE */
-
-      .research-person {
-        padding: 0.65rem !important;
-      }
-
-      .research-person-info h4 {
-        font-size: 0.75rem !important;
-      }
-
-      .research-person-info p {
-        font-size: 0.65rem !important;
-      }
-
-
-      /* VIDEO */
-
-      .research-video-container {
-        padding: 0.75rem !important;
-
-        border-radius: 0.75rem !important;
-      }
-
-      .research-video-info-row {
-        flex-direction: column !important;
-      }
-
-      .research-video-info {
-        width: 100%;
-        flex-basis: auto !important;
-      }
-
-      .research-video-metrics {
-        width: 100%;
-
-        flex-basis: auto !important;
-      }
-
-      .research-video-grid {
-        grid-template-columns: 1fr !important;
-      }
-
-      .research-video-card {
-        padding: 0.6rem !important;
-      }
-
-
-      /* GALLERY */
-
-      .research-gallery-header {
-        flex-direction: column !important;
-
-        align-items: flex-start !important;
-      }
-
-      .research-gallery-grid {
-        grid-template-columns: 1fr !important;
-      }
-
-
-      /* MODAL */
-
-      .research-modal {
-        padding: 0.5rem !important;
-      }
-
-      .research-modal-content {
-        border-radius: 0.75rem !important;
-
-        max-height:
-          calc(100dvh - 1rem);
-      }
-
-      .research-modal-image-container {
-        padding: 0.5rem !important;
-      }
-
-      .research-modal-image {
-        max-height: 55dvh !important;
-      }
-
-
-      /* CODE */
-
-      .research-code-toolbar {
-        flex-direction: column !important;
-
-        align-items: flex-start !important;
-      }
-
-      .research-code-buttons {
-        width: 100%;
-      }
-
-      .research-code-container {
-        border-radius: 0.7rem !important;
-      }
-
-      .research-code-scroll {
-        font-size: 0.68rem !important;
-      }
-
-
-      /* DOWNLOADS */
-
-      .research-download-grid {
-        grid-template-columns: 1fr !important;
-      }
-
-      .research-download-card {
-        padding: 0.9rem !important;
-        gap: 0.75rem;
-      }
-
-      .research-download-card button {
-        flex-shrink: 0;
-      }
-
-
-      /* FOOTER */
-
-      .research-footer {
-        margin-top: 2rem !important;
-
-        padding-top: 1.25rem !important;
-        padding-bottom: 1rem !important;
-      }
+    .research-code-scroll span {
+      font-size: 0.68rem !important;
     }
 
-
-    /* ==========================================================
-       VERY SMALL PHONES
-       ========================================================== */
-
-    @media (max-width: 380px) {
-
-      .research-header-inner,
-      .research-tabs,
-      .research-main {
-        padding-left: 0.6rem !important;
-        padding-right: 0.6rem !important;
-      }
-
-      .research-metrics {
-        grid-template-columns: 1fr !important;
-      }
-
-      .research-header-actions {
-        align-items: flex-start !important;
-      }
-
-      .research-header-actions > div {
-        flex-wrap: wrap;
-      }
-
-      .research-person {
-        align-items: flex-start !important;
-      }
-
-      .research-download-card {
-        flex-direction: column !important;
-
-        align-items: stretch !important;
-      }
-
-      .research-download-card button {
-        width: 100%;
-      }
+    .research-modal-backdrop {
+      padding: 0.5rem !important;
     }
 
-
-    /* ==========================================================
-       LARGE MONITORS
-       ========================================================== */
-
-    @media (min-width: 1600px) {
-
-      .research-header-inner,
-      .research-tabs,
-      .research-main {
-        max-width: 1400px;
-      }
-
-      .research-main {
-        padding-left: 2rem;
-        padding-right: 2rem;
-      }
+    .research-modal-content {
+      border-radius: 0.7rem !important;
+      max-height: calc(100vh - 1rem);
     }
 
-
-    /* ==========================================================
-       ACCESSIBILITY
-       ========================================================== */
-
-    @media (prefers-reduced-motion: reduce) {
-
-      *,
-      *::before,
-      *::after {
-        scroll-behavior: auto !important;
-        transition: none !important;
-        animation: none !important;
-      }
+    .research-modal-image {
+      max-height: 50vh;
     }
-  `;
+  }
 
+  @media (max-width: 480px) {
+    .research-branding {
+      align-items: flex-start;
+    }
 
-  // ==========================================================================
-  // RENDER
-  // ==========================================================================
+    .research-branding img {
+      width: 38px !important;
+      height: 38px !important;
+      flex-basis: 38px;
+    }
+
+    .research-branding h1 {
+      font-size: 0.78rem !important;
+      line-height: 1.35;
+    }
+
+    .research-branding h2 {
+      font-size: 0.7rem !important;
+      line-height: 1.35;
+    }
+
+    .research-branding p {
+      font-size: 0.62rem !important;
+      line-height: 1.4;
+    }
+
+    .research-header-actions > div {
+      gap: 0.35rem !important;
+    }
+
+    .research-header-actions span,
+    .research-header-actions a {
+      font-size: 0.62rem !important;
+    }
+
+    .research-header-actions a {
+      padding: 0.3rem 0.55rem !important;
+    }
+
+    .research-tabs button {
+      padding: 0.5rem 0.65rem !important;
+      font-size: 0.68rem !important;
+    }
+
+    .research-main {
+      padding: 0.7rem 0.4rem;
+    }
+
+    .research-hero {
+      padding: 0.8rem !important;
+      border-left-width: 3px !important;
+      border-radius: 0.65rem !important;
+    }
+
+    .research-hero > span {
+      font-size: 0.62rem !important;
+    }
+
+    .research-hero h1 {
+      font-size: 1rem !important;
+      line-height: 1.45;
+    }
+
+    .research-hero p {
+      font-size: 0.7rem !important;
+      line-height: 1.55;
+    }
+
+    .research-metric-card,
+    .research-card {
+      padding: 0.75rem !important;
+      border-radius: 0.65rem !important;
+    }
+
+    .research-metric-card span {
+      font-size: 0.68rem !important;
+    }
+
+    .research-metric-card span:nth-child(2) {
+      font-size: 1.05rem !important;
+    }
+
+    .research-card h2,
+    .research-card h3 {
+      font-size: 0.9rem !important;
+    }
+
+    .research-card p {
+      font-size: 0.7rem !important;
+      line-height: 1.7;
+      text-align: left !important;
+    }
+
+    .research-person-card {
+      padding: 0.55rem !important;
+      gap: 0.5rem !important;
+      align-items: flex-start !important;
+    }
+
+    .research-person-card .research-avatar {
+      width: 32px !important;
+      height: 32px !important;
+      font-size: 0.72rem !important;
+    }
+
+    .research-person-card p,
+    .research-person-card h4,
+    .research-person-card span {
+      font-size: 0.65rem !important;
+      line-height: 1.5;
+    }
+
+    .research-video-player {
+      padding: 0.5rem !important;
+      border-radius: 0.7rem !important;
+    }
+
+    .research-video-info h2 {
+      font-size: 0.9rem !important;
+    }
+
+    .research-video-info p,
+    .research-video-info span,
+    .research-video-metrics div {
+      font-size: 0.65rem !important;
+      line-height: 1.55;
+    }
+
+    .research-video-metrics {
+      padding: 0.6rem !important;
+    }
+
+    .research-image-preview {
+      aspect-ratio: 4 / 3;
+    }
+
+    .research-image-card > div:last-child {
+      padding: 0.65rem !important;
+    }
+
+    .research-image-card h3 {
+      font-size: 0.7rem !important;
+    }
+
+    .research-image-card p {
+      font-size: 0.64rem !important;
+    }
+
+    .research-code-toolbar button {
+      font-size: 0.62rem !important;
+      padding: 0.35rem 0.55rem !important;
+      max-width: 100%;
+    }
+
+    .research-code-header {
+      padding: 0.55rem 0.65rem !important;
+    }
+
+    .research-code-header > button {
+      width: 100%;
+    }
+
+    .research-code-description {
+      padding: 0.6rem 0.65rem !important;
+      font-size: 0.64rem !important;
+    }
+
+    .research-code-scroll {
+      padding: 0.55rem !important;
+      font-size: 0.65rem !important;
+      line-height: 1.5 !important;
+    }
+
+    .research-download-card {
+      padding: 0.75rem !important;
+    }
+
+    .research-download-card h3 {
+      font-size: 0.7rem !important;
+    }
+
+    .research-download-card span,
+    .research-download-card button {
+      font-size: 0.63rem !important;
+    }
+
+    .research-page footer {
+      margin-top: 2rem !important;
+      padding: 1rem 0.5rem 0 !important;
+      font-size: 0.62rem !important;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .research-header-inner {
+      padding: 0.55rem;
+    }
+
+    .research-branding {
+      gap: 0.5rem;
+    }
+
+    .research-branding img {
+      width: 32px !important;
+      height: 32px !important;
+      flex-basis: 32px;
+    }
+
+    .research-branding h1 {
+      font-size: 0.68rem !important;
+    }
+
+    .research-branding h2 {
+      font-size: 0.61rem !important;
+    }
+
+    .research-branding p {
+      font-size: 0.55rem !important;
+    }
+
+    .research-tabs {
+      padding-left: 0.35rem;
+      padding-right: 0.35rem;
+    }
+
+    .research-tabs button {
+      padding: 0.42rem 0.5rem !important;
+      font-size: 0.6rem !important;
+    }
+
+    .research-main {
+      padding: 0.5rem 0.3rem;
+    }
+
+    .research-hero {
+      padding: 0.65rem !important;
+    }
+
+    .research-hero h1 {
+      font-size: 0.88rem !important;
+    }
+
+    .research-card p {
+      font-size: 0.66rem !important;
+    }
+
+    .research-metric-card span:nth-child(2) {
+      font-size: 0.95rem !important;
+    }
+
+    .research-code-scroll {
+      font-size: 0.6rem !important;
+    }
+
+    .research-code-scroll span {
+      font-size: 0.57rem !important;
+    }
+  }
+
+  @media (max-width: 260px) {
+    .research-header-actions > div {
+      flex-direction: column;
+      align-items: stretch !important;
+    }
+
+    .research-header-actions a,
+    .research-header-actions span {
+      width: 100%;
+      text-align: center;
+    }
+
+    .research-main {
+      padding: 0.35rem 0.2rem;
+    }
+
+    .research-hero,
+    .research-card,
+    .research-metric-card,
+    .research-video-player,
+    .research-download-card {
+      padding: 0.5rem !important;
+    }
+
+    .research-hero h1 {
+      font-size: 0.8rem !important;
+    }
+
+    .research-hero p,
+    .research-card p {
+      font-size: 0.6rem !important;
+    }
+
+    .research-tabs button {
+      font-size: 0.55rem !important;
+      padding: 0.35rem 0.42rem !important;
+    }
+
+    .research-code-scroll {
+      font-size: 0.55rem !important;
+      padding: 0.4rem !important;
+    }
+  }
+`;
+
+// ============================================================================
+// 5. MAIN REACT COMPONENT (English)
+// ============================================================================
+export default function ResearchShowcaseEn() {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedVideo, setSelectedVideo] = useState(RESEARCH_DATA.videos[0]);
+  const [selectedCodeIndex, setSelectedCodeIndex] = useState(0);
+  const [activeImageModal, setActiveImageModal] = useState(null);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  const handleCopyCode = (codeText) => {
+    navigator.clipboard.writeText(codeText);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
+  const handleDownload = (url, filename) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename || url.split('/').pop() || 'download';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
-    <div
-      className="research-page"
-      style={{
-        minHeight: '100vh',
-        width: '100%',
-        backgroundColor: '#F8FAFC',
-        color: '#0F172A',
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
-        paddingBottom: '3rem'
-      }}
-    >
-
-      <style jsx global>
-        {responsiveCSS}
-      </style>
-
-
-      {/* ================================================================
-          HEADER
-          ================================================================ */}
-
-      <header
-        className="research-header"
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E2E8F0',
-          position: 'sticky',
-          top: 0,
-          zIndex: 40,
-          boxShadow:
-            '0 1px 3px rgba(0,0,0,0.05)'
-        }}
-      >
-
-        <div className="research-header-inner">
-
-          <div className="research-branding">
-
+    <>
+      <style jsx global>{RESPONSIVE_CSS}</style>
+      <div className="research-page" style={LIGHT_STYLES.container}>
+      {/* Header */}
+      <Header />
+      <header style={LIGHT_STYLES.header}>
+        <div className="research-header-inner" style={LIGHT_STYLES.headerInner}>
+          <div className="research-branding" style={LIGHT_STYLES.brandingBox}>
             <SustLogo size={54} />
-
-            <div className="research-branding-text">
-
-              <h1
-                style={{
-                  fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
-                  fontWeight: 700,
-                  color: '#1E3A8A',
-                  letterSpacing: '-0.01em',
-                  margin: 0
-                }}
-              >
-                {RESEARCH_DATA.meta.institution}
-              </h1>
-
-              <h2
-                style={{
-                  fontSize: 'clamp(0.7rem, 2vw, 0.8125rem)',
-                  fontWeight: 600,
-                  color: '#0284C7',
-                  margin: '0.1rem 0 0',
-                  direction: 'rtl'
-                }}
-              >
-                {RESEARCH_DATA.meta.institutionArabic}
-              </h2>
-
-              <p
-                style={{
-                  fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
-                  color: '#64748B',
-                  margin: '0.2rem 0 0'
-                }}
-              >
-                {RESEARCH_DATA.meta.college}
-                {' • '}
-                {RESEARCH_DATA.meta.department}
+            <div>
+              <h1 style={LIGHT_STYLES.instEnglish}>{RESEARCH_DATA.meta.institution}</h1>
+              <h2 style={LIGHT_STYLES.instArabic}>{RESEARCH_DATA.meta.institutionArabic}</h2>
+              <p style={LIGHT_STYLES.deptText}>
+                {RESEARCH_DATA.meta.college} • {RESEARCH_DATA.meta.department}
               </p>
-
             </div>
-
           </div>
-
-
-          <div
-            className="research-header-actions"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-end',
-              gap: '0.5rem'
-            }}
-          >
-
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                flexWrap: 'wrap',
-                justifyContent: 'flex-end'
-              }}
-            >
-
-              <span
-                style={{
-                  padding: '0.35rem 0.85rem',
-                  borderRadius: '9999px',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  backgroundColor: '#F0FDF4',
-                  color: '#166534',
-                  border: '1px solid #BBF7D0'
-                }}
-              >
-                {RESEARCH_DATA.meta.status}
-              </span>
-
+          <div className="research-header-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={LIGHT_STYLES.badge}>{RESEARCH_DATA.meta.status}</span>
               <a
                 href="/academic/ar"
                 style={{
@@ -1435,1725 +1425,331 @@ export default function ResearchShowcase() {
               >
                 العربية / AR
               </a>
-
             </div>
-
-            <span
-              style={{
-                fontSize: '0.75rem',
-                color: '#64748B',
-                fontWeight: 500
-              }}
-            >
-              Session: {RESEARCH_DATA.meta.academicYear}
+            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>
+              Academic Year: {RESEARCH_DATA.meta.academicYear}
             </span>
-
           </div>
-
         </div>
 
-
-        {/* ==============================================================
-            TABS
-            ============================================================== */}
-
-        <div className="research-tabs">
-
+        {/* Tabs */}
+        <div className="research-tabs" style={LIGHT_STYLES.tabsRow}>
           {[
-            {
-              id: 'overview',
-              label: 'Overview & Team'
-            },
-            {
-              id: 'videos',
-              label: 'Experimental Videos'
-            },
-            {
-              id: 'gallery',
-              label: 'Hardware Gallery'
-            },
-            {
-              id: 'code',
-              label: 'Source Code'
-            },
-            {
-              id: 'downloads',
-              label: 'Downloads & Specs'
-            }
+            { id: 'overview', label: 'Overview & Team' },
+            { id: 'videos', label: 'Experiment Videos' },
+            { id: 'gallery', label: 'Image Gallery' },
+            { id: 'code', label: 'Source Code' },
+            { id: 'downloads', label: 'Downloads' }
           ].map((tab) => (
-
             <button
               key={tab.id}
-              onClick={() =>
-                setActiveTab(tab.id)
-              }
-              style={{
-                padding:
-                  '0.65rem 1rem',
-
-                fontSize:
-                  'clamp(0.7rem, 1.5vw, 0.8125rem)',
-
-                fontWeight:
-                  activeTab === tab.id
-                    ? 600
-                    : 500,
-
-                borderRadius:
-                  '0.5rem 0.5rem 0 0',
-
-                cursor: 'pointer',
-
-                border: 'none',
-
-                backgroundColor:
-                  activeTab === tab.id
-                    ? '#F8FAFC'
-                    : 'transparent',
-
-                color:
-                  activeTab === tab.id
-                    ? '#1E3A8A'
-                    : '#64748B',
-
-                borderBottom:
-                  activeTab === tab.id
-                    ? '3px solid #1E3A8A'
-                    : '3px solid transparent',
-
-                whiteSpace: 'nowrap',
-
-                transition:
-                  'all 0.15s ease'
-              }}
+              onClick={() => setActiveTab(tab.id)}
+              style={LIGHT_STYLES.tabBtn(activeTab === tab.id)}
             >
               {tab.label}
             </button>
-
           ))}
-
         </div>
-
       </header>
 
+      <main className="research-main" style={LIGHT_STYLES.main}>
 
-      {/* ================================================================
-          MAIN
-          ================================================================ */}
-
-      <main className="research-main">
-
-
-        {/* ==============================================================
-            HERO
-            ============================================================== */}
-
-        <div
-          className="research-hero"
-          style={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E2E8F0',
-            borderRadius: '0.875rem',
-            padding:
-              'clamp(1rem, 4vw, 1.75rem)',
-            marginBottom: '2rem',
-            boxShadow:
-              '0 4px 6px rgba(0,0,0,0.03)',
-            borderLeft:
-              '5px solid #1E3A8A'
-          }}
-        >
-
-          <span
-            style={{
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              color: '#0284C7',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}
-          >
+        {/* Hero */}
+        <div className="research-hero" style={LIGHT_STYLES.heroCard}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284C7', letterSpacing: '0.05em' }}>
             {RESEARCH_DATA.meta.degree}
           </span>
-
-          <h1
-            style={{
-              fontSize:
-                'clamp(1.1rem, 3vw, 1.5rem)',
-              fontWeight: 800,
-              color: '#0F172A',
-              margin:
-                '0.5rem 0',
-              lineHeight: 1.25
-            }}
-          >
-            {RESEARCH_DATA.meta.title}
-          </h1>
-
-          <p
-            style={{
-              fontSize:
-                'clamp(0.75rem, 2vw, 0.875rem)',
-              color: '#475569',
-              margin: 0
-            }}
-          >
-            {RESEARCH_DATA.meta.subtitle}
-          </p>
-
+          <h1 style={LIGHT_STYLES.heroTitle}>{RESEARCH_DATA.meta.title}</h1>
+          <p style={LIGHT_STYLES.heroSub}>{RESEARCH_DATA.meta.subtitle}</p>
         </div>
 
-
-        {/* ==============================================================
-            OVERVIEW
-            ============================================================== */}
-
+        {/* ================= TAB 1: OVERVIEW ================= */}
         {activeTab === 'overview' && (
-
           <div>
-
-
-            {/* METRICS */}
-
-            <div
-              className="research-metrics"
-              style={{
-                marginBottom: '2rem'
-              }}
-            >
-
+            <div className="research-metrics" style={LIGHT_STYLES.metricsGrid}>
               {[
-                {
-                  label: 'Carrier Frequency',
-                  value:
-                    RESEARCH_DATA.meta.carrierFrequency,
-                  sub: 'High-Pass Isolated'
-                },
-                {
-                  label: 'Avg Response Time',
-                  value:
-                    RESEARCH_DATA.meta.avgResponseTime,
-                  sub: 'Sense to Disconnect'
-                },
-                {
-                  label: 'Isolation Device',
-                  value: 'Solid-State Relay',
-                  sub: 'Optically Isolated'
-                },
-                {
-                  label: 'Controller Core',
-                  value:
-                    RESEARCH_DATA.meta.microcontroller,
-                  sub: '8-bit AVR Engine'
-                }
-              ].map((metric, index) => (
-
-                <div
-                  key={index}
-                  className="research-metric"
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    border:
-                      '1px solid #E2E8F0',
-                    padding:
-                      'clamp(0.85rem, 3vw, 1.25rem)',
-                    borderRadius: '0.75rem',
-                    boxShadow:
-                      '0 1px 3px rgba(0,0,0,0.03)'
-                  }}
-                >
-
-                  <span
-                    className="research-metric-label"
-                    style={{
-                      fontSize: '0.75rem',
-                      color: '#64748B',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.025em'
-                    }}
-                  >
-                    {metric.label}
-                  </span>
-
-                  <span
-                    className="research-metric-value"
-                    style={{
-                      fontSize:
-                        'clamp(1rem, 3vw, 1.5rem)',
-                      fontWeight: 800,
-                      color: '#1E3A8A',
-                      marginTop: '0.35rem'
-                    }}
-                  >
-                    {metric.value}
-                  </span>
-
-                  <span
-                    className="research-metric-sub"
-                    style={{
-                      fontSize: '0.75rem',
-                      color: '#0284C7',
-                      marginTop: '0.25rem',
-                      display: 'block',
-                      fontWeight: 500
-                    }}
-                  >
-                    {metric.sub}
-                  </span>
-
+                { label: "Carrier Frequency", value: RESEARCH_DATA.meta.carrierFrequency, sub: "With high-pass filter" },
+                { label: "Average Response Time", value: RESEARCH_DATA.meta.avgResponseTime, sub: "From sensing to cut-off" },
+                { label: "Isolation Device", value: "SSR", sub: "Optically isolated" },
+                { label: "Microcontroller", value: RESEARCH_DATA.meta.microcontroller, sub: "8-bit AVR processor" }
+              ].map((m, idx) => (
+                <div key={idx} className="research-metric-card" style={LIGHT_STYLES.metricCard}>
+                  <span style={LIGHT_STYLES.metricLabel}>{m.label}</span>
+                  <span style={LIGHT_STYLES.metricVal}>{m.value}</span>
+                  <span style={LIGHT_STYLES.metricSub}>{m.sub}</span>
                 </div>
-
               ))}
-
             </div>
 
-
-            {/* CONTENT */}
-
-            <div
-              className="research-content-grid"
-            >
-
-
-              {/* ABSTRACT */}
-
-              <div
-                className="research-card research-card-wide"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  border:
-                    '1px solid #E2E8F0',
-                  borderRadius: '0.875rem',
-                  padding:
-                    'clamp(1rem, 3vw, 1.5rem)',
-                  boxShadow:
-                    '0 1px 3px rgba(0,0,0,0.04)'
-                }}
-              >
-
-                <h2
-                  style={{
-                    fontSize: '1.05rem',
-                    fontWeight: 700,
-                    color: '#0F172A',
-                    marginTop: 0,
-                    marginBottom: '1rem'
-                  }}
-                >
-                  Research Abstract & Operating Principle
-                </h2>
-
-                <p
-                  style={{
-                    fontSize:
-                      'clamp(0.78rem, 1.5vw, 0.875rem)',
-                    color: '#334155',
-                    lineHeight: 1.65,
-                    margin: 0
-                  }}
-                >
-                  This study presents the design and evaluation of a human-aware electrical
-                  shock prevention system intended to detect a person's approach to, or contact
-                  with, an energized conductor and isolate the circuit before harmful current can
-                  persist. The work addresses a limitation of conventional protection devices
-                  such as residual-current devices, which primarily respond after an electrical
-                  fault or leakage condition has already developed. The proposed approach combines
-                  capacitive proximity sensing with fast electronic isolation and adaptive decision
-                  logic. A 500 kHz low-voltage carrier is superimposed on a simulated 220 V/50 Hz
-                  supply, and the change produced by human-body capacitive coupling is detected
-                  through a two-stage RC high-pass filtering and clamping stage. An ATmega328P-based
-                  controller samples the filtered signal, establishes an initial baseline, tracks
-                  slow environmental drift, and uses an adaptive threshold with latched output
-                  control to distinguish a significant approach or contact event from ordinary
-                  variation. A solid-state relay provides the isolation stage. The system was
-                  developed using a simulation-first methodology in Proteus VSM, followed by
-                  assembly and bench testing of a physical prototype. Testing covered no-contact
-                  operation, direct contact, sustained contact, release, liquid-mediated contact,
-                  and simulated socket/plug contact. The sensing principle and adaptive decision
-                  logic were demonstrated successfully across these conditions. The firmware
-                  contribution to the sense-to-disconnect time averaged about 5 ms, while the
-                  relay introduced an additional approximately 1–11 ms depending on the AC phase,
-                  giving an estimated total of about 5–21 ms with an average near 10.5 ms.
-                  Thus, the sensing and decision stages met the intended speed requirement on
-                  their own, while the triac-based relay's zero-crossing behavior limited the
-                  complete system from consistently remaining below 10 ms. The study therefore
-                  demonstrates a working proof of concept for proactive, human-aware electrical
-                  protection and identifies back-to-back MOSFET isolation and a faster
-                  microcontroller as the main directions for further improvement. Testing was
-                  performed at a transformer-stepped-down experimental voltage, and full
-                  mains-voltage validation remains outside the demonstrated scope.
+            <div className="research-content-grid" style={LIGHT_STYLES.contentGrid}>
+              <div className="research-card" style={{ ...LIGHT_STYLES.card, gridColumn: 'span 2' }}>
+                <h2 style={LIGHT_STYLES.cardTitle}>Abstract & Working Principle</h2>
+                <p style={LIGHT_STYLES.text}>
+                  This work presents the design and evaluation of a human-sensing electric shock prevention system. It detects when a person approaches or touches a live conductor and isolates the circuit before harmful current can flow. Conventional protection devices such as residual-current devices usually react only after a fault or leakage has already started. The approach here combines capacitive proximity sensing, fast electronic isolation, and adaptive decision logic. A low-voltage 500 kHz carrier is superimposed on a simulated 220 V / 50 Hz supply. The change caused by capacitive coupling from the human body is extracted through two stages of high-pass filtering and stabilisation. An ATmega328P reads the filtered signal, sets an initial baseline, tracks slow environmental drift, and applies an adaptive threshold with a smoothed output so that genuine approach or contact events can be told apart from ordinary fluctuations. Isolation is handled by a solid-state relay. The system was developed simulation-first in Proteus VSM, then built and tested as a laboratory prototype. Tests covered no-contact operation, direct contact, sustained contact, release, contact through liquid, and simulated plug/socket contact. Both the sensing principle and the adaptive decision logic performed well across these cases. Firmware contributed roughly 5 ms on average from sensing to decision; the relay added another 1–11 ms depending on AC phase, giving a total of about 5–21 ms with a mean near 10.5 ms. Sensing and decision stages alone met the speed target, while the triac-based relay’s zero-crossing behaviour kept the full system from consistently staying under 10 ms. The work shows a practical proof-of-concept for proactive, human-aware protection and points to anti-series MOSFETs for isolation and a faster processor as the main next steps. All tests were run at reduced voltage through a transformer; full-mains verification remains outside what has been demonstrated so far.
                 </p>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '0.5rem',
-                    marginTop: '1.25rem'
-                  }}
-                >
-
-                  {[
-                    'Superposition Theorem',
-                    'Capacitive Proximity',
-                    'Asymmetric Filter',
-                    'SUST Engineering'
-                  ].map((tag, index) => (
-
-                    <span
-                      key={index}
-                      style={{
-                        padding:
-                          '0.25rem 0.65rem',
-                        fontSize: '0.75rem',
-                        backgroundColor: '#F1F5F9',
-                        color: '#334155',
-                        borderRadius: '0.375rem',
-                        border:
-                          '1px solid #CBD5E1',
-                        fontWeight: 500
-                      }}
-                    >
-                      {tag}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1.25rem' }}>
+                  {['Superposition Theorem', 'Capacitive Sensing', 'Asymmetrical Filter', 'SUST Engineering'].map((t, i) => (
+                    <span key={i} style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem', backgroundColor: '#F1F5F9', color: '#334155', borderRadius: '0.375rem', border: '1px solid #CBD5E1', fontWeight: 500 }}>
+                      {t}
                     </span>
-
                   ))}
-
                 </div>
-
               </div>
 
-
-              {/* TEAM */}
-
-              <div
-                className="research-card"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  border:
-                    '1px solid #E2E8F0',
-                  borderRadius: '0.875rem',
-                  padding:
-                    'clamp(1rem, 3vw, 1.5rem)',
-                  boxShadow:
-                    '0 1px 3px rgba(0,0,0,0.04)'
-                }}
-              >
-
-                <h3
-                  style={{
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    color: '#0F172A',
-                    marginTop: 0,
-                    marginBottom: '1rem',
-                    paddingBottom: '0.5rem',
-                    borderBottom:
-                      '1px solid #F1F5F9'
-                  }}
-                >
+              <div className="research-card" style={LIGHT_STYLES.card}>
+                <h3 style={{ ...LIGHT_STYLES.cardTitle, fontSize: '1rem', borderBottom: '1px solid #F1F5F9', paddingBottom: '0.5rem' }}>
                   Academic Supervision
                 </h3>
-
-
-                {/* ADVISOR */}
-
-                <div
-                  className="research-person"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem',
-                    backgroundColor: '#EFF6FF',
-                    borderRadius: '0.5rem',
-                    border:
-                      '1px solid #BFDBFE',
-                    marginBottom: '0.5rem'
-                  }}
-                >
-
-                  <div
-                    style={{
-                      width: 38,
-                      height: 38,
-                      minWidth: 38,
-                      borderRadius: '50%',
-                      backgroundColor: '#1E3A8A',
-                      color: '#FFFFFF',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      fontSize: '0.75rem'
-                    }}
-                  >
+                
+                <div className="research-person-card" style={{ ...LIGHT_STYLES.personCard, backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }}>
+                  <div className="research-avatar" style={{ ...LIGHT_STYLES.avatarCircle, backgroundColor: '#1E3A8A', color: '#FFFFFF' }}>
                     Dr
                   </div>
-
-                  <div className="research-person-info">
-
-                    <span
-                      style={{
-                        fontSize: '0.6875rem',
-                        color: '#1E40AF',
-                        fontWeight: 600,
-                        textTransform: 'uppercase'
-                      }}
-                    >
+                  <div>
+                    <span style={{ fontSize: '0.6875rem', color: '#1E40AF', fontWeight: 600 }}>
                       {RESEARCH_DATA.meta.advisor.title}
                     </span>
-
-                    <h4
-                      style={{
-                        fontSize: '0.875rem',
-                        fontWeight: 700,
-                        color: '#0F172A',
-                        margin: 0
-                      }}
-                    >
+                    <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>
                       {RESEARCH_DATA.meta.advisor.name}
                     </h4>
-
-                    <p
-                      style={{
-                        fontSize: '0.75rem',
-                        color: '#475569',
-                        margin: 0
-                      }}
-                    >
+                    <p style={{ fontSize: '0.75rem', color: '#475569', margin: 0 }}>
                       {RESEARCH_DATA.meta.advisor.role}
                     </p>
-
                   </div>
-
                 </div>
 
+                <h3 style={{ ...LIGHT_STYLES.cardTitle, fontSize: '1rem', borderBottom: '1px solid #F1F5F9', paddingBottom: '0.5rem', marginTop: '1.5rem' }}>
+                  Research Team
+                </h3>
 
-                {/* MEMBERS */}
-
-                {RESEARCH_DATA.meta.members.map(
-                  (member, index) => (
-
-                    <div
-                      key={index}
-                      className="research-person"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
-                        padding: '0.75rem',
-                        backgroundColor: '#F8FAFC',
-                        borderRadius: '0.5rem',
-                        border:
-                          '1px solid #E2E8F0',
-                        marginBottom: '0.5rem'
-                      }}
-                    >
-
-                      <div
-                        style={{
-                          width: 38,
-                          height: 38,
-                          minWidth: 38,
-                          borderRadius: '50%',
-                          backgroundColor: '#DBEAFE',
-                          color: '#1E3A8A',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 700
-                        }}
-                      >
-                        {member.name.charAt(0)}
-                      </div>
-
-                      <div className="research-person-info">
-
-                        <h4
-                          style={{
-                            fontSize: '0.8125rem',
-                            fontWeight: 700,
-                            color: '#0F172A',
-                            margin: 0
-                          }}
-                        >
-                          {member.name}
-                        </h4>
-
-                        <p
-                          style={{
-                            fontSize: '0.75rem',
-                            color: '#64748B',
-                            margin: 0
-                          }}
-                        >
-                          ID: {member.id}
-                          {' • '}
-                          <span
-                            style={{
-                              color: '#0284C7'
-                            }}
-                          >
-                            {member.role}
-                          </span>
-                        </p>
-
-                      </div>
-
+                {RESEARCH_DATA.meta.members.map((member, i) => (
+                  <div key={i} style={LIGHT_STYLES.personCard}>
+                    <div className="research-avatar" style={LIGHT_STYLES.avatarCircle}>
+                      {member.name.charAt(0)}
                     </div>
+                    <div>
+                      <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                        {member.name}
+                      </h4>
+                      <p style={{ fontSize: '0.75rem', color: '#64748B', margin: 0 }}>
+                        Student ID: {member.id} • <span style={{ color: '#0284C7' }}>{member.role}</span>
+                      </p>
+                    </div>
+                  </div>
+                ))}
 
-                  )
-                )}
-
-
-                <button
-                  onClick={() =>
-                    setActiveTab('videos')
-                  }
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: '#1E3A8A',
-                    color: '#FFFFFF',
-                    textAlign: 'center',
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    borderRadius: '0.5rem',
-                    border: 'none',
-                    cursor: 'pointer',
-                    marginTop: '1rem'
-                  }}
-                >
-                  Explore Video Evidence →
+                <button onClick={() => setActiveTab('videos')} style={LIGHT_STYLES.btnPrimary}>
+                  View Experiment Videos →
                 </button>
-
               </div>
-
             </div>
-
           </div>
-
         )}
 
-
-        {/* ==============================================================
-            VIDEOS
-            ============================================================== */}
-
+        {/* ================= TAB 2: VIDEOS ================= */}
         {activeTab === 'videos' && (
-
           <div>
-
-            <div
-              className="research-video-container"
-              style={{
-                backgroundColor: '#FFFFFF',
-                border:
-                  '1px solid #E2E8F0',
-                borderRadius: '1rem',
-                padding:
-                  'clamp(0.75rem, 3vw, 1.25rem)',
-                marginBottom: '2rem',
-                boxShadow:
-                  '0 4px 6px rgba(0,0,0,0.05)'
-              }}
-            >
-
-              <div
-                className="research-video-wrapper"
-                style={{
-                  backgroundColor: '#0F172A',
-                  borderRadius: '0.75rem'
-                }}
-              >
-
-                <video
-                  key={selectedVideo.id}
-                  controls
-                  poster={selectedVideo.posterUrl}
-                  playsInline
-                  preload="metadata"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain'
-                  }}
-                >
-                  <source
-                    src={selectedVideo.videoUrl}
-                    type="video/mp4"
-                  />
+            <div className="research-video-player" style={LIGHT_STYLES.videoPlayerContainer}>
+              <div style={LIGHT_STYLES.videoWrapper}>
+                <video key={selectedVideo.id} controls poster={selectedVideo.posterUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }}>
+                  <source src={selectedVideo.videoUrl} type="video/mp4" />
                 </video>
-
               </div>
 
-
-              <div
-                className="research-video-info-row"
-                style={{
-                  marginTop: '1rem',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  gap: '1rem'
-                }}
-              >
-
-                <div
-                  className="research-video-info"
-                >
-
-                  <span
-                    style={{
-                      fontSize: '0.6875rem',
-                      padding:
-                        '0.2rem 0.5rem',
-                      backgroundColor: '#DBEAFE',
-                      color: '#1E40AF',
-                      borderRadius: 4,
-                      fontWeight: 600
-                    }}
-                  >
+              <div className="research-video-info" style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+                <div>
+                  <span style={{ fontSize: '0.6875rem', padding: '0.2rem 0.5rem', backgroundColor: '#DBEAFE', color: '#1E40AF', borderRadius: '4px', fontWeight: 600 }}>
                     {selectedVideo.category}
                   </span>
-
-                  <h2
-                    style={{
-                      fontSize:
-                        'clamp(1rem, 3vw, 1.125rem)',
-                      fontWeight: 700,
-                      color: '#0F172A',
-                      margin:
-                        '0.4rem 0 0.25rem'
-                    }}
-                  >
-                    {selectedVideo.title}
-                  </h2>
-
-                  <p
-                    style={{
-                      fontSize: '0.8125rem',
-                      color: '#475569',
-                      margin: 0,
-                      lineHeight: 1.5
-                    }}
-                  >
-                    {selectedVideo.description}
-                  </p>
-
+                  <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#0F172A', margin: '0.4rem 0 0.25rem 0' }}>{selectedVideo.title}</h2>
+                  <p style={{ fontSize: '0.8125rem', color: '#475569', margin: 0 }}>{selectedVideo.description}</p>
                 </div>
 
-
-                <div
-                  className="research-video-metrics"
-                  style={{
-                    backgroundColor: '#F8FAFC',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '0.5rem',
-                    border:
-                      '1px solid #E2E8F0'
-                  }}
-                >
-
-                  <div
-                    style={{
-                      fontSize: '0.75rem',
-                      color: '#64748B'
-                    }}
-                  >
-                    Measured Latency:{' '}
-
-                    <strong
-                      style={{
-                        color: '#15803D',
-                        fontFamily: 'monospace'
-                      }}
-                    >
-                      {selectedVideo.metrics.latency}
-                    </strong>
-
-                  </div>
-
-                  <div
-                    style={{
-                      fontSize: '0.75rem',
-                      color: '#64748B',
-                      marginTop: '0.25rem'
-                    }}
-                  >
-                    Trial Outcome:{' '}
-
-                    <strong
-                      style={{
-                        color: '#0F172A'
-                      }}
-                    >
-                      {selectedVideo.metrics.outcome}
-                    </strong>
-
-                  </div>
-
+                <div className="research-video-metrics" style={{ backgroundColor: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #E2E8F0', minWidth: '180px' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B' }}>Measured latency: <strong style={{ color: '#15803D', fontFamily: 'monospace' }}>{selectedVideo.metrics.latency}</strong></div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.25rem' }}>Result: <strong style={{ color: '#0F172A' }}>{selectedVideo.metrics.outcome}</strong></div>
                 </div>
-
               </div>
-
             </div>
 
-
-            <h3
-              style={{
-                fontSize: '0.875rem',
-                fontWeight: 700,
-                color: '#475569',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                marginBottom: '1rem'
-              }}
-            >
-              Select Experimental Trial
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#475569', marginBottom: '1rem' }}>
+              Select an experiment
             </h3>
-
-
-            <div className="research-video-grid">
-
-              {RESEARCH_DATA.videos.map(
-                (video) => (
-
-                  <div
-                    key={video.id}
-                    className="research-video-card"
-                    onClick={() =>
-                      setSelectedVideo(video)
-                    }
-                    style={{
-                      backgroundColor:
-                        selectedVideo.id ===
-                        video.id
-                          ? '#EFF6FF'
-                          : '#FFFFFF',
-
-                      border:
-                        selectedVideo.id ===
-                        video.id
-                          ? '2px solid #2563EB'
-                          : '1px solid #E2E8F0',
-
-                      borderRadius: '0.75rem',
-
-                      padding: '0.75rem',
-
-                      cursor: 'pointer',
-
-                      boxShadow:
-                        '0 1px 3px rgba(0,0,0,0.03)'
-                    }}
-                  >
-
-                    <div
-                      style={{
-                        width: '100%',
-                        aspectRatio: '16 / 9',
-                        backgroundColor: '#0F172A',
-                        borderRadius: '0.5rem',
-                        overflow: 'hidden',
-                        position: 'relative',
-                        marginBottom: '0.5rem'
-                      }}
-                    >
-
-                      <img
-                        src={video.posterUrl}
-                        alt={video.title}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          opacity: 0.85
-                        }}
-                      />
-
-                      <div
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                      >
-
-                        <div
-                          style={{
-                            width: 36,
-                            height: 36,
-                            backgroundColor: '#1E3A8A',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#FFFFFF',
-                            fontSize: '0.875rem'
-                          }}
-                        >
-                          ▶
-                        </div>
-
+            <div className="research-video-grid" style={LIGHT_STYLES.videoGrid}>
+              {RESEARCH_DATA.videos.map((vid) => (
+                <div key={vid.id} onClick={() => setSelectedVideo(vid)} style={LIGHT_STYLES.videoCard(selectedVideo.id === vid.id)}>
+                  <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#0F172A', borderRadius: '0.5rem', overflow: 'hidden', position: 'relative', marginBottom: '0.5rem' }}>
+                    <img src={vid.posterUrl} alt={vid.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: '36px', height: '36px', backgroundColor: '#1E3A8A', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontSize: '0.875rem', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                        ▶
                       </div>
-
                     </div>
-
-
-                    <h4
-                      style={{
-                        fontSize: '0.8125rem',
-                        fontWeight: 700,
-                        color: '#0F172A',
-                        margin: 0
-                      }}
-                    >
-                      {video.title}
-                    </h4>
-
-                    <p
-                      style={{
-                        fontSize: '0.75rem',
-                        color: '#64748B',
-                        margin:
-                          '0.25rem 0 0',
-                        lineHeight: 1.5
-                      }}
-                    >
-                      {video.description}
-                    </p>
-
                   </div>
-
-                )
-              )}
-
+                  <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>{vid.title}</h4>
+                  <p style={{ fontSize: '0.75rem', color: '#64748B', margin: '0.25rem 0 0 0' }}>{vid.description}</p>
+                </div>
+              ))}
             </div>
-
           </div>
-
         )}
 
-
-        {/* ==============================================================
-            GALLERY
-            ============================================================== */}
-
+        {/* ================= TAB 3: GALLERY ================= */}
         {activeTab === 'gallery' && (
-
           <div>
-
-            <div
-              className="research-gallery-header"
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1.25rem',
-                gap: '1rem'
-              }}
-            >
-
-              <h2
-                style={{
-                  fontSize: '1.125rem',
-                  fontWeight: 700,
-                  color: '#0F172A',
-                  margin: 0
-                }}
-              >
-                Experimental Schematics & Waveforms
-              </h2>
-
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  color: '#64748B'
-                }}
-              >
-                Click figure to enlarge
-              </span>
-
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Schematics & Waveforms</h2>
+              <span style={{ fontSize: '0.75rem', color: '#64748B' }}>Click a figure to enlarge</span>
             </div>
 
-
-            <div className="research-gallery-grid">
-
-              {RESEARCH_DATA.images.map(
-                (image) => (
-
-                  <div
-                    key={image.id}
-                    className="research-image-card"
-                    onClick={() =>
-                      setActiveImageModal(image)
-                    }
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      border:
-                        '1px solid #E2E8F0',
-                      borderRadius: '0.75rem',
-                      cursor: 'pointer',
-                      boxShadow:
-                        '0 1px 3px rgba(0,0,0,0.03)'
-                    }}
-                  >
-
-                    <div
-                      style={{
-                        width: '100%',
-                        aspectRatio: '16 / 10',
-                        backgroundColor: '#F1F5F9',
-                        position: 'relative',
-                        overflow: 'hidden'
-                      }}
-                    >
-
-                      <img
-                        src={image.imageUrl}
-                        alt={image.title}
-                        loading="lazy"
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                      />
-
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: '0.5rem',
-                          left: '0.5rem',
-                          backgroundColor:
-                            'rgba(255,255,255,0.95)',
-                          color: '#1E3A8A',
-                          fontSize: '0.6875rem',
-                          fontWeight: 700,
-                          padding:
-                            '0.2rem 0.525rem',
-                          borderRadius: '0.25rem',
-                          fontFamily: 'monospace'
-                        }}
-                      >
-                        {image.figure}
-                      </span>
-
-                    </div>
-
-
-                    <div
-                      style={{
-                        padding: '0.875rem'
-                      }}
-                    >
-
-                      <span
-                        style={{
-                          fontSize: '0.6875rem',
-                          color: '#0284C7',
-                          textTransform: 'uppercase',
-                          fontWeight: 600
-                        }}
-                      >
-                        {image.category}
-                      </span>
-
-                      <h3
-                        style={{
-                          fontSize: '0.8125rem',
-                          fontWeight: 700,
-                          color: '#0F172A',
-                          margin:
-                            '0.25rem 0'
-                        }}
-                      >
-                        {image.title}
-                      </h3>
-
-                      <p
-                        style={{
-                          fontSize: '0.75rem',
-                          color: '#64748B',
-                          margin: 0,
-                          lineHeight: 1.4
-                        }}
-                      >
-                        {image.caption}
-                      </p>
-
-                    </div>
-
+            <div className="research-image-grid" style={LIGHT_STYLES.imageGrid}>
+              {RESEARCH_DATA.images.map((img) => (
+                <div key={img.id} onClick={() => setActiveImageModal(img)} className="research-image-card" style={LIGHT_STYLES.imageCard}>
+                  <div className="research-image-preview" style={{ width: '100%', height: '170px', backgroundColor: '#F1F5F9', position: 'relative', overflow: 'hidden' }}>
+                    <img src={img.imageUrl} alt={img.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <span style={LIGHT_STYLES.figureBadge}>{img.figure}</span>
                   </div>
-
-                )
-              )}
-
+                  <div style={{ padding: '0.875rem' }}>
+                    <span style={{ fontSize: '0.6875rem', color: '#0284C7', fontWeight: 600, display: 'block' }}>{img.category}</span>
+                    <h3 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>{img.title}</h3>
+                    <p style={{ fontSize: '0.75rem', color: '#64748B', margin: 0, lineHeight: 1.4 }}>{img.caption}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-
-
-            {/* MODAL */}
 
             {activeImageModal && (
-
-              <div
-                className="research-modal"
-                onClick={() =>
-                  setActiveImageModal(null)
-                }
-                style={{
-                  position: 'fixed',
-                  inset: 0,
-                  backgroundColor:
-                    'rgba(15,23,42,0.75)',
-                  backdropFilter:
-                    'blur(4px)',
-                  zIndex: 50,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-
-                <div
-                  className="research-modal-content"
-                  onClick={(event) =>
-                    event.stopPropagation()
-                  }
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '1rem',
-                    overflow: 'hidden',
-                    boxShadow:
-                      '0 20px 25px rgba(0,0,0,0.2)'
-                  }}
-                >
-
-                  <div
-                    style={{
-                      padding:
-                        '1rem 1.25rem',
-                      borderBottom:
-                        '1px solid #E2E8F0',
-                      display: 'flex',
-                      justifyContent:
-                        'space-between',
-                      alignItems: 'center',
-                      gap: '1rem'
-                    }}
-                  >
-
-                    <div
-                      style={{
-                        minWidth: 0
-                      }}
-                    >
-
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          fontFamily: 'monospace',
-                          color: '#0284C7',
-                          fontWeight: 700
-                        }}
-                      >
-                        {activeImageModal.figure}
-                      </span>
-
-                      <h3
-                        style={{
-                          fontSize: '0.875rem',
-                          fontWeight: 700,
-                          color: '#0F172A',
-                          margin: 0
-                        }}
-                      >
-                        {activeImageModal.title}
-                      </h3>
-
+              <div className="research-modal-backdrop" style={LIGHT_STYLES.modalBackdrop} onClick={() => setActiveImageModal(null)}>
+                <div className="research-modal-content" style={LIGHT_STYLES.modalContent} onClick={(e) => e.stopPropagation()}>
+                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#0284C7', fontWeight: 700 }}>{activeImageModal.figure}</span>
+                      <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>{activeImageModal.title}</h3>
                     </div>
-
-                    <button
-                      onClick={() =>
-                        setActiveImageModal(null)
-                      }
-                      aria-label="Close image"
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#64748B',
-                        fontSize: '1.25rem',
-                        cursor: 'pointer',
-                        flexShrink: 0
-                      }}
-                    >
-                      ✕
-                    </button>
-
+                    <button onClick={() => setActiveImageModal(null)} style={{ background: 'none', border: 'none', color: '#64748B', fontSize: '1.25rem', cursor: 'pointer' }}>✕</button>
                   </div>
-
-
-                  <div
-                    className="research-modal-image-container"
-                    style={{
-                      backgroundColor: '#0F172A',
-                      padding: '1rem',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center'
-                    }}
-                  >
-
-                    <img
-                      className="research-modal-image"
-                      src={activeImageModal.imageUrl}
-                      alt={activeImageModal.title}
-                    />
-
+                  <div style={{ backgroundColor: '#0F172A', padding: '1rem', display: 'flex', justifyContent: 'center' }}>
+                    <img className="research-modal-image" src={activeImageModal.imageUrl} alt={activeImageModal.title} style={{ maxHeight: '60vh', maxWidth: '100%', objectFit: 'contain' }} />
                   </div>
-
-
-                  <div
-                    style={{
-                      padding: '1rem',
-                      fontSize: '0.8125rem',
-                      color: '#334155'
-                    }}
-                  >
+                  <div style={{ padding: '1rem', fontSize: '0.8125rem', color: '#334155', backgroundColor: '#FFFFFF' }}>
                     {activeImageModal.caption}
                   </div>
-
                 </div>
-
               </div>
-
             )}
-
           </div>
-
         )}
 
-
-        {/* ==============================================================
-            SOURCE CODE
-            ============================================================== */}
-
+        {/* ================= TAB 4: SOURCE CODE ================= */}
         {activeTab === 'code' && (
-
           <div>
-
-            <div
-              className="research-code-toolbar"
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '1rem',
-                marginBottom: '1.25rem'
-              }}
-            >
-
+            <div className="research-code-toolbar" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
               <div>
-
-                <h2
-                  style={{
-                    fontSize: '1.125rem',
-                    fontWeight: 700,
-                    color: '#0F172A',
-                    margin: 0
-                  }}
-                >
-                  Firmware & DSP Code
-                </h2>
-
-                <p
-                  style={{
-                    fontSize: '0.75rem',
-                    color: '#64748B',
-                    margin:
-                      '0.25rem 0 0'
-                  }}
-                >
-                  Inspect the microcontroller firmware and algorithm implementations.
-                </p>
-
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Source Code</h2>
+                <p style={{ fontSize: '0.75rem', color: '#64748B', margin: '0.25rem 0 0 0' }}>Firmware and algorithm implementation.</p>
               </div>
 
-
-              <div
-                className="research-code-buttons"
-              >
-
-                {RESEARCH_DATA.codeFiles.map(
-                  (file, index) => (
-
-                    <button
-                      key={file.id}
-                      onClick={() =>
-                        setSelectedCodeIndex(index)
-                      }
-                      style={{
-                        padding:
-                          '0.4rem 0.85rem',
-                        fontSize: '0.75rem',
-                        fontFamily: 'monospace',
-                        borderRadius:
-                          '0.375rem',
-                        border:
-                          selectedCodeIndex === index
-                            ? 'none'
-                            : '1px solid #CBD5E1',
-                        cursor: 'pointer',
-                        backgroundColor:
-                          selectedCodeIndex === index
-                            ? '#1E3A8A'
-                            : '#FFFFFF',
-                        color:
-                          selectedCodeIndex === index
-                            ? '#FFFFFF'
-                            : '#475569',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {file.filename}
-                    </button>
-
-                  )
-                )}
-
-              </div>
-
-            </div>
-
-
-            <div
-              className="research-code-container"
-              style={{
-                backgroundColor: '#0F172A',
-                border:
-                  '1px solid #1E293B',
-                borderRadius: '0.875rem',
-                boxShadow:
-                  '0 4px 12px rgba(0,0,0,0.15)'
-              }}
-            >
-
-              <div
-                style={{
-                  backgroundColor: '#1E293B',
-                  padding:
-                    '0.75rem 1.25rem',
-                  display: 'flex',
-                  justifyContent:
-                    'space-between',
-                  alignItems: 'center',
-                  gap: '1rem'
-                }}
-              >
-
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    minWidth: 0
-                  }}
-                >
-
-                  <span
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {RESEARCH_DATA.codeFiles.map((f, idx) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setSelectedCodeIndex(idx)}
                     style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      backgroundColor: '#EF4444'
-                    }}
-                  />
-
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      backgroundColor: '#F59E0B'
-                    }}
-                  />
-
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      backgroundColor: '#10B981'
-                    }}
-                  />
-
-                  <span
-                    style={{
+                      padding: '0.4rem 0.85rem',
                       fontSize: '0.75rem',
                       fontFamily: 'monospace',
-                      color: '#94A3B8',
-                      marginLeft: '0.5rem',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
+                      borderRadius: '0.375rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      backgroundColor: selectedCodeIndex === idx ? '#1E3A8A' : '#FFFFFF',
+                      color: selectedCodeIndex === idx ? '#FFFFFF' : '#475569',
+                      boxShadow: selectedCodeIndex === idx ? '0 2px 4px rgba(30,58,138,0.2)' : '0 1px 2px rgba(0,0,0,0.05)',
+                      border: selectedCodeIndex === idx ? 'none' : '1px solid #CBD5E1'
                     }}
                   >
-                    {
-                      RESEARCH_DATA
-                        .codeFiles[
-                          selectedCodeIndex
-                        ].filename
-                    }
-                  </span>
-
-                </div>
-
-
-                <button
-                  onClick={() =>
-                    handleCopyCode(
-                      RESEARCH_DATA
-                        .codeFiles[
-                          selectedCodeIndex
-                        ].code
-                    )
-                  }
-                  style={{
-                    padding:
-                      '0.25rem 0.65rem',
-                    fontSize: '0.75rem',
-                    fontFamily: 'monospace',
-                    backgroundColor: '#334155',
-                    color: '#F1F5F9',
-                    border: 'none',
-                    borderRadius:
-                      '0.375rem',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0
-                  }}
-                >
-                  {copiedCode
-                    ? '✓ Copied'
-                    : 'Copy Code'}
-                </button>
-
+                    {f.filename}
+                  </button>
+                ))}
               </div>
-
-
-              <div
-                style={{
-                  padding:
-                    '0.75rem 1.25rem',
-                  borderBottom:
-                    '1px solid #1E293B',
-                  fontSize: '0.75rem',
-                  color: '#94A3B8'
-                }}
-              >
-                {
-                  RESEARCH_DATA
-                    .codeFiles[
-                      selectedCodeIndex
-                    ].description
-                }
-              </div>
-
-
-              <div
-                className="research-code-scroll"
-                style={{
-                  padding:
-                    '1.25rem',
-                  fontFamily:
-                    'ui-monospace, SFMono-Regular, Monaco, Consolas, monospace',
-                  lineHeight: 1.6,
-                  color: '#E2E8F0'
-                }}
-              >
-
-                <pre
-                  className="research-code"
-                  style={{
-                    margin: 0,
-                    fontSize:
-                      'clamp(0.68rem, 1vw, 0.8125rem)'
-                  }}
-                >
-
-                  <code>
-
-                    {
-                      RESEARCH_DATA
-                        .codeFiles[
-                          selectedCodeIndex
-                        ].code
-                        .split('\n')
-                        .map(
-                          (line, index) => (
-
-                            <div
-                              key={index}
-                              style={{
-                                display:
-                                  'table-row'
-                              }}
-                            >
-
-                              <span
-                                style={{
-                                  display:
-                                    'table-cell',
-                                  userSelect:
-                                    'none',
-                                  paddingRight:
-                                    '1.25rem',
-                                  color:
-                                    '#475569',
-                                  textAlign:
-                                    'right',
-                                  fontSize:
-                                    '0.75rem'
-                                }}
-                              >
-                                {index + 1}
-                              </span>
-
-                              <span
-                                style={{
-                                  display:
-                                    'table-cell',
-                                  whiteSpace:
-                                    'pre'
-                                }}
-                              >
-                                {line}
-                              </span>
-
-                            </div>
-
-                          )
-                        )
-                    }
-
-                  </code>
-
-                </pre>
-
-              </div>
-
             </div>
 
-          </div>
+            <div style={LIGHT_STYLES.codeContainer}>
+              <div className="research-code-header" style={LIGHT_STYLES.codeHeader}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444' }}></span>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B' }}></span>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981' }}></span>
+                  <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#94A3B8', marginLeft: '0.5rem' }}>
+                    {RESEARCH_DATA.codeFiles[selectedCodeIndex].filename}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleCopyCode(RESEARCH_DATA.codeFiles[selectedCodeIndex].code)}
+                  style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem', fontFamily: 'monospace', backgroundColor: '#334155', color: '#F1F5F9', border: 'none', borderRadius: '0.375rem', cursor: 'pointer' }}
+                >
+                  {copiedCode ? '✓ Copied' : 'Copy code'}
+                </button>
+              </div>
 
+              <div className="research-code-description" style={{ padding: '0.75rem 1.25rem', borderBottom: '1px solid #1E293B', fontSize: '0.75rem', color: '#94A3B8', backgroundColor: '#0F172A' }}>
+                {RESEARCH_DATA.codeFiles[selectedCodeIndex].description}
+              </div>
+
+              <div className="research-code-scroll" style={{ padding: '1.25rem', overflowX: 'auto', fontFamily: 'ui-monospace, SFMono-Regular, Monaco, Consolas, monospace', fontSize: '0.8125rem', lineHeight: '1.6', color: '#E2E8F0' }}>
+                <pre style={{ margin: 0 }}>
+                  <code>
+                    {RESEARCH_DATA.codeFiles[selectedCodeIndex].code
+                      .split('\n')
+                      .map((line, i) => (
+                        <div key={i} style={{ display: 'table-row' }}>
+                          <span style={{ display: 'table-cell', userSelect: 'none', paddingRight: '1.25rem', color: '#475569', textAlign: 'right', fontSize: '0.75rem' }}>
+                            {i + 1}
+                          </span>
+                          <span style={{ display: 'table-cell', whiteSpace: 'pre' }}>{line}</span>
+                        </div>
+                      ))}
+                  </code>
+                </pre>
+              </div>
+            </div>
+          </div>
         )}
 
-
-        {/* ==============================================================
-            DOWNLOADS
-            ============================================================== */}
-
+        {/* ================= TAB 5: DOWNLOADS ================= */}
         {activeTab === 'downloads' && (
-
           <div>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#0F172A', margin: '0 0 0.25rem 0' }}>Downloads</h2>
+            <p style={{ fontSize: '0.75rem', color: '#64748B', margin: '0 0 1.5rem 0' }}>Project files, source code, and related materials.</p>
 
-            <h2
-              style={{
-                fontSize: '1.125rem',
-                fontWeight: 700,
-                color: '#0F172A',
-                margin:
-                  '0 0 0.25rem'
-              }}
-            >
-              Download Supplementary Files
-            </h2>
-
-            <p
-              style={{
-                fontSize: '0.75rem',
-                color: '#64748B',
-                margin:
-                  '0 0 1.5rem'
-              }}
-            >
-              Access simulation project files, firmware,
-              and thesis documentation.
-            </p>
-
-
-            <div
-              className="research-download-grid"
-            >
-
-              {RESEARCH_DATA.downloads.map(
-                (item, index) => (
-
-                  <div
-                    key={index}
-                    className="research-download-card"
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      border:
-                        '1px solid #E2E8F0',
-                      borderRadius: '0.75rem',
-                      padding: '1.25rem',
-                      display: 'flex',
-                      justifyContent:
-                        'space-between',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      boxShadow:
-                        '0 1px 3px rgba(0,0,0,0.03)'
-                    }}
-                  >
-
-                    <div
-                      className="research-download-info"
-                    >
-
-                      <span
-                        style={{
-                          fontSize: '0.6875rem',
-                          color: '#0284C7',
-                          textTransform:
-                            'uppercase',
-                          fontWeight: 700
-                        }}
-                      >
-                        {item.type}
-                      </span>
-
-                      <h3
-                        style={{
-                          fontSize: '0.8125rem',
-                          fontWeight: 700,
-                          color: '#0F172A',
-                          margin:
-                            '0.25rem 0'
-                        }}
-                      >
-                        {item.name}
-                      </h3>
-
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          color: '#64748B'
-                        }}
-                      >
-                        Size: {item.size}
-                      </span>
-
-                    </div>
-
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDownload(
-                          item.link,
-                          item.name
-                        )
-                      }
-                      style={{
-                        padding:
-                          '0.5rem 0.85rem',
-                        backgroundColor:
-                          '#F1F5F9',
-                        color: '#1E3A8A',
-                        border:
-                          '1px solid #CBD5E1',
-                        borderRadius:
-                          '0.5rem',
-                        fontSize: '0.75rem',
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      Download ↓
-                    </button>
-
+            <div className="research-download-grid" style={LIGHT_STYLES.downloadGrid}>
+              {RESEARCH_DATA.downloads.map((item, idx) => (
+                <div key={idx} className="research-download-card" style={LIGHT_STYLES.downloadCard}>
+                  <div>
+                    <span style={{ fontSize: '0.6875rem', color: '#0284C7', fontWeight: 700, display: 'block' }}>{item.type}</span>
+                    <h3 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0F172A', margin: '0.25rem 0' }}>{item.name}</h3>
+                    <span style={{ fontSize: '0.75rem', color: '#64748B', display: 'block' }}>Size: {item.size}</span>
                   </div>
-
-                )
-              )}
-
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(item.link, item.name)}
+                    style={{ padding: '0.5rem 0.85rem', backgroundColor: '#F1F5F9', color: '#1E3A8A', border: '1px solid #CBD5E1', borderRadius: '0.5rem', fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Download ↓
+                  </button>
+                </div>
+              ))}
             </div>
-
           </div>
-
         )}
 
       </main>
 
-
-      {/* ================================================================
-          FOOTER
-          ================================================================ */}
-
-      <footer
-        className="research-footer"
-        style={{
-          borderTop:
-            '1px solid #E2E8F0',
-          marginTop: '4rem',
-          paddingTop: '2rem',
-          paddingBottom: '1rem',
-          textAlign: 'center',
-          fontSize: '0.75rem',
-          color: '#64748B'
-        }}
-      >
-
-        <p
-          style={{
-            fontWeight: 700,
-            color: '#1E3A8A',
-            margin: 0
-          }}
-        >
-          {RESEARCH_DATA.meta.institution}
-          {' ('}
-          {RESEARCH_DATA.meta.institutionArabic}
-          {')'}
-        </p>
-
-        <p
-          style={{
-            margin:
-              '0.25rem 0 0'
-          }}
-        >
-          {RESEARCH_DATA.meta.college}
-          {' — '}
-          {RESEARCH_DATA.meta.department}
-        </p>
-
-        <p
-          style={{
-            margin:
-              '0.25rem 0 0',
-            color: '#94A3B8'
-          }}
-        >
-          B.Sc. Graduation Research Project
-          {' • '}
-          {RESEARCH_DATA.meta.academicYear}
-        </p>
-
+      <footer style={{ borderTop: '1px solid #E2E8F0', marginTop: '4rem', paddingTop: '2rem', textAlign: 'center', fontSize: '0.75rem', color: '#64748B' }}>
+        <p style={{ fontWeight: 700, color: '#1E3A8A', margin: 0 }}>{RESEARCH_DATA.meta.institution} ({RESEARCH_DATA.meta.institutionArabic})</p>
+        <p style={{ margin: '0.25rem 0 0 0' }}>{RESEARCH_DATA.meta.college} — {RESEARCH_DATA.meta.department}</p>
+        <p style={{ margin: '0.25rem 0 0 0', color: '#94A3B8' }}>BSc Graduation Project • {RESEARCH_DATA.meta.academicYear}</p>
       </footer>
-
     </div>
+    </>
   );
 }

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import SUSTLOGO from '@assets/images/sust_logo.png';
+import Header from '@sections/Header';
 
 // ============================================================================
 // 1. EDITABLE RESEARCH DATA OBJECT (Arabic)
@@ -1393,6 +1394,7 @@ export default function ResearchShowcaseAr() {
       <style jsx global>{RESPONSIVE_CSS}</style>
       <div className="research-page" style={LIGHT_STYLES.container}>
       {/* Header */}
+      <Header isArabic/>
       <header style={LIGHT_STYLES.header}>
         <div className="research-header-inner" style={LIGHT_STYLES.headerInner}>
           <div className="research-branding" style={LIGHT_STYLES.brandingBox}>
