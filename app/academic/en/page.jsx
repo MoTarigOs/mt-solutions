@@ -66,7 +66,7 @@ const RESEARCH_DATA = {
       title: "Final Circuit Design",
       figure: "Figure 3.6",
       category: "Schematics",
-      imageUrl: "http://localhost:3000/images/circuit_design.jpg",
+      imageUrl: "https://www.motarig.com/images/circuit_design.jpg",
       caption: "The final circuit schematic that was later turned into a working prototype."
     },
   ],
