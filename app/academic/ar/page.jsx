@@ -66,7 +66,7 @@ const RESEARCH_DATA = {
       title: "التصميم النهائي للدائرة",
       figure: "الشكل 3.6",
       category: "مخططات",
-      imageUrl: "http://localhost:3000/images/circuit_design.jpg",
+      imageUrl: "https://www.motarig.com/images/circuit_design.jpg",
       caption: "المخطط النهائي للدائرة الذي تم تحويله لاحقاً إلى نموذج فعلي."
     },
   ],
@@ -440,7 +440,10 @@ const RESEARCH_DATA = {
   ],
 
   downloads: [
-    { name: "ملف المشروع كامل", size: "4.5 MB", type: "مستند", link: "http://www.motarig.com/files/human_aware_shock_prevention_sys.pdf" }
+    { name: "ملف المشروع كامل", size: "4.5 MB", type: "مستند", link: "http://www.motarig.com/files/human_aware_shock_prevention_sys.pdf" },
+    { name: "الكود المصدري", size: "45.2 KB", type: "مستند", link: "http://www.motarig.com/files/source_code.pdf" },
+    { name: "فيديو التجربة - الجزء الأول", size: "143 MB", type: "فيديو", link: "https://sust-motarig-research-files.s3.eu-central-003.backblazeb2.com/shock_prevention_sys_part1.mp4" },
+    { name: "فيديو التجربة - الجزء الثاني", size: "84.4 MB", type: "فيديو", link: "https://sust-motarig-research-files.s3.eu-central-003.backblazeb2.com/shock_prevention_sys_part2.mp4" },
   ]
 };
 

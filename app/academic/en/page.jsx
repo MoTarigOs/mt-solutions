@@ -440,7 +440,10 @@ const RESEARCH_DATA = {
   ],
 
   downloads: [
-    { name: "Full Project File", size: "4.5 MB", type: "Document", link: "http://www.motarig.com/files/human_aware_shock_prevention_sys.pdf" }
+    { name: "Full Project File", size: "4.5 MB", type: "Document", link: "http://www.motarig.com/files/human_aware_shock_prevention_sys.pdf" },
+    { name: "Source Code", size: "45.2 KB", type: "Document", link: "http://www.motarig.com/files/source_code.pdf" },
+    { name: "Experiment Video - Part 1", size: "143 MB", type: "Video", link: "https://sust-motarig-research-files.s3.eu-central-003.backblazeb2.com/shock_prevention_sys_part1.mp4" },
+    { name: "Experiment Video - Part 2", size: "84.4 MB", type: "Video", link: "https://sust-motarig-research-files.s3.eu-central-003.backblazeb2.com/shock_prevention_sys_part2.mp4" },
   ]
 };
 
